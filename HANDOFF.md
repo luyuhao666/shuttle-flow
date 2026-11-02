@@ -1,22 +1,22 @@
 # Shuttle Flow 项目交接（原羽间 / Shuttle Club）
 
-更新日期：2026-11-02（GitHub 已上传并检查，补充仓库缓存/停用文件清理记录）。工作目录：`D:\codex_try\Shuttle Flow`。本文供接手开发的下一段对话快速掌握项目现状；玩家操作说明另见 `README.md`。**本文件记录的是当前代码和已经达成的用户偏好，后续需求仍以用户在新对话中的最新要求为准。**
+更新日期：2026-11-02（本段对话收尾：双语、Windows 分享、GitHub 协作及清理均已完成；接手入口见第 46 节）。工作目录：`D:\codex_try\Shuttle Flow`。本文供接手开发的下一段对话快速掌握项目现状；玩家操作说明另见 `README.md`。**本文件记录的是当前代码和已经达成的用户偏好，后续需求仍以用户在新对话中的最新要求为准。**
 
 ## 新对话接手速览（2026-11-02）
 
-- **最新：GitHub 协作与仓库清理（11 月 2 日）**：仓库 https://github.com/luyuhao666/shuttle-flow 已上传，初始 main 提交为 6c6f88a，118 个文件与本地一致。用户从成员页确认 chinasocialism 已列为协作者、无待接受提示；当前连接的成员权限接口返回 403，未以接口独立验证邀请。仓库当前为 Public，已告知用户。按用户授权删除已跟踪的 Python 缓存 scripts/__pycache__/package-macos.cpython-312.pyc 和已停用的 assets/characters/pixel-athlete-v2/review-game-renderer.js，补 __pycache__/ 与 *.py[cod] 忽略规则。两份删除文件备份在被忽略的 artifacts/repository-cleanup-2026-11-02。178/178 测试与语法检查通过；普通运行无需该历史 bundle。此前审计生成的临时 checkout 已清除，审计源码 ZIP 与报告保留，避免 Node 递归重复发现测试。正式游戏逻辑/素材入口保持现有版本。
+**先读本节和第 46 节，再按需读第 45 节（双语）、第 43 节（手机横屏）及相关源码。** 后面保留历史阶段记录；其中“当前/本轮”、旧测试数量、旧角色、旧高度门槛、原生调色盘及旧打包状态只在各节原日期成立，不能覆盖本节与第 46 节。后续开发重心是电脑操作，具体工作等待用户在新对话中的新需求。
+
+- **最新：GitHub 协作与仓库清理（11 月 2 日）**：仓库 https://github.com/luyuhao666/shuttle-flow 已上传，默认分支 main；清理提交 **72e0e32426308989e171751fe914e195249a9952** 已推送，并通过 GitHub 接口核对与本地一致。初始提交 6c6f88a 含 118 个文件，清理后跟踪 116 个文件；后续文档提交以 git log 为准。用户从成员页确认 chinasocialism 已列为协作者、无待接受提示，按用户确认视为已加入；当前连接的成员权限接口返回 403，未以接口独立验证邀请。仓库当前为 **Public**，已告知用户，未改成 Private。已删除 Python 缓存与停用 review bundle，补 __pycache__/、*.py[cod] 忽略规则；备份在 artifacts/repository-cleanup-2026-11-02。178/178 测试与语法检查通过。此前审计临时 checkout 已清除，审计源码 ZIP 与报告保留，避免 Node 递归重复发现测试。
 
 - **最新：再次打包 Windows 双语版（11 月 1 日）**：按用户“再打包一份”重新用 --reuse-runtime 同步当前源码并生成独立 ZIP：dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip。51 个源码/素材文件与新 ASAR 一致，75 个压缩文件逐个 SHA-256 与发布目录比对；记录 artifacts/release-win-2026-11-01-bilingual-2.json。游戏功能与第 45 节相同，默认英语，可在设置切换简体中文；旧 ZIP 保留。
 
-先读本节和第 45 节，再按任务阅读第 26～44 节。文档后面保留各阶段记录，其中旧测试数量、旧角色、旧高度门槛、原生调色盘、球拍待扩展和旧打包命令不能作为当前状态；以本节及后续较新章节为准。
-
-- **最新：设置内双语切换（11 月 1 日）**：用户要求默认英语，设置中切换简体中文。已在设置顶部加入 English / 简体中文，立即切换并独立保存，首次/无效存档均默认英语。覆盖菜单、设置、外观、帮助、暂停、比赛/练习/挑战/训练/教程结算、动态比分/提示、触控按钮、八课教程、Canvas 标签及无障碍文案；不改规则/操作/已有存档。178 测试、语法、六尺寸 124 中文状态、109 英文状态/78 配色、中文完整桌面/触屏教程及九尺寸触控回归通过。Windows 同步；当前分享包为 dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual.zip（168.0 MiB），之前同日 ZIP 保留为加语言前快照。详见第 45 节。
+- **最新：设置内双语切换（11 月 1 日）**：用户要求默认英语，设置中切换简体中文。已在设置顶部加入 English / 简体中文，立即切换并独立保存，首次/无效存档均默认英语。覆盖菜单、设置、外观、帮助、暂停、比赛/练习/挑战/训练/教程结算、动态比分/提示、触控按钮、八课教程、Canvas 标签及无障碍文案；不改规则/操作/已有存档。178 测试、语法、六尺寸 124 中文状态、109 英文状态/78 配色、中文完整桌面/触屏教程及九尺寸触控回归通过。Windows 同步；首次双语 ZIP 为 bilingual.zip，随后再次打包的最新分享副本为 **bilingual-2.zip**，完整路径见分享包状态。详见第 45、46 节。
 
 - **最新：Windows 朋友试玩分享包（11 月 1 日）**：用户要求把当前版本打包给朋友，仅 Windows。已用 --reuse-runtime 更新发布目录，生成 dist/Shuttle-Flow-Windows-x64-2026-11-01.zip，176,103,475 字节（167.9 MiB），含完整 Shuttle Flow-win32-x64 文件夹和中文启动/操作说明。171 测试和语法检查通过，50 个当前源码/素材文件与 ASAR 一致，ZIP 内 75 个文件均经 SHA-256 比对与发布目录一致。此次没有新增玩法或完成新的 Windows GUI 启动验证。旧 ZIP 保留，Mac 未更新；详见第 44 节。
 
 - **最新：手机横屏优化与电脑优先方向（10 月 14 日）**：用户明确授权先优化手机横屏，后续重心仍放电脑操作。横屏两侧空间从 344px 缩至 280px，同尺寸球场加宽 64px；右侧大按钮常规横屏高 80px，小高度/教程 64px，跳跃独立，顶部工具按钮 44px，左侧结束入口避开手指区。首次手机竖屏进入前建议旋转，可明确继续竖屏；旋转提示不会自动开始，游玩中换方向安全暂停，同方向尺寸变化只清理触摸。新增横屏瞄准轨道、按住时松手击球提示；瞄准灵敏度与击球规则保持。171 测试、语法、九尺寸手机/桌面真实浏览器双指检查、六尺寸教程（桌面/横屏/最小横屏三套完整八课，共 27 次合法回球）、109 英文状态/78 配色通过，Windows 同步。现有手机试玩是旧版，新横屏仍待真机反馈。见第 43 节。
 
-- **本次对话收尾**：场景/UI/英文/封面、人机强度平移、手机触控第一版和新手教程均已实现。用户已在真实手机打开游戏，反馈竖屏玩起来难受；新教程尚待试玩。房间码、随机匹配、服务器和微信小游戏只是未来路线讨论，没有实施或部署。新对话优先接收教程与手机操作反馈，勿把讨论自动当成开发任务。完整边界、手机启动/停止方式与验证限制见第 42 节。
+- **10 月 14 日对话收尾（历史）**：场景/UI/英文/封面、人机强度平移、手机触控第一版和新手教程均已实现。用户已在真实手机打开游戏，反馈竖屏玩起来难受；新教程尚待试玩。后续已完成横屏与双语，当前见第 43、45、46 节。房间码、随机匹配、服务器和微信小游戏仍只是未来路线讨论，没有实施或部署。
 
 - **最新：球场新手教程（10 月 14 日）**：用户授权“发来一个球→画面定格→指引接球和不同回球”，入口可放主界面角落。主菜单右下角 New here? / Tutorial，不增加第六主入口。八课在真实球场自动暂停来球，说明后手动移动/瞄准/选择/挥拍；真实回球落地才推进，做错重试。跳杀在真实最高点暂停人物，手动进攻；正常游戏不改规则。键鼠/触屏说明、相关控制高亮、退出/暂停/重播/本机完成标记齐全，不混练习最高分。166 测试、五尺寸 GUI、桌面/触屏完整八课、109 英文状态/78 配色通过，Windows 同步；教程尚待用户试玩。见第 41 节。
 
@@ -36,18 +36,19 @@
 
 - **用户的硬性偏好**：不要重做游戏；在现有工程内逐步改进。保留当前球场、镜头、操作和手感；角色保留原身高，通过弓腰、屈膝和低马步表现候球。左右移动要有重心和换向惯性。不要为了新角色或新玩法收紧原点杀/跳杀规则，也不要故意在球的高点减速。
 - **当前游戏**：纯前端离线游戏，Canvas 场地/羽毛球与真实 3D 角色共同绘制，Electron 独立窗口。首页仍为练习模式、比赛模式、专项练习、个性化、游戏设置五个入口。保留 `file://` 双击和可选本地 HTTP 能力，禁止改成必须联网加载资源的实现。
-- **最近完成的功能**：练习模式内“喂球练习 / 落点挑战”并列选择。落点挑战含综合/后场/网前、20 球/不限球数；稳定原热身喂球，六个目标逐球轮换；球实际落地后目标命中 +100、中心 +150，漏接/出界/下网同样计球。20 球自动结算，无限模式手动结束；显示命中率、中心命中、最长连续命中和四类失误。独立分数，不更新普通练习最高分。详见第 32 节。
+- **最近完成的功能**：设置内 English / 简体中文即时切换，默认英语、独立保存；此前已完成手机横屏优化和八课新手教程。练习模式保留“喂球练习 / 落点挑战”并列选择，挑战含综合/后场/网前、20 球/不限球数，实际落地计分，独立于普通练习最高分。详见第 32、41、43、45 节。
 - **角色与外观**：正式使用 `pixel-athlete-v2` v0.3.1，蓝衣 7 号玩家/米色人机，29 骨骼、九段动作；候球、横移、落地、正反手与两种发球已接入。球衣主色/条纹可分别改；球拍默认加大 16%，三种样式与三档尺寸，拍框/手胶分别改，玩家与人机独立保存。游戏球拍为运行时配件，独立 GLB/模型查看入口仍显示原静态球拍。详见第 26、27、30 节。
 - **界面偏好**：默认简洁提示，减少屏幕文字；文字透明，无黑底、描边或阴影，保持高清与对比度。场景头顶 logo 已删除。所有六处配色入口使用十种固定命名色块及原色/自动按钮；用户明确不喜欢调色盘，不能恢复原生颜色选择器。旧任意 RGB 存档仍兼容。详见第 28、31 节。
 - **人机**：休闲沿用旧标准，标准沿用旧高手，高手新增强化。均衡/进攻/防守/拉吊分别保持出球和回位差异；仍按实时球位、反应/收拍等待、惯性和触球半径判断。最新接杀与连续回合数据见第 39 节，旧第 29 节档位已平移。
 - **横屏阶段验证记录（历史）**：2026-10-14 **171/171 测试通过**、npm.cmd run check 通过。教程在 30/60/120/240fps 完整通过八课；真实 Chrome Headless Shell 六尺寸教程，桌面/横屏/568×320 各完整八课，加三个尺寸首课，共 27 次合法课程回球。手机控制九尺寸（含 568×260 浏览器工具栏高度模拟）、定格/真实移动/瞄准/跳跃最高点/结算/退出通过。109 英文界面状态与 78 配色通过。ASAR 和本地/LAN资源逐字节核对；核心/人机/外观/提示/音效/落点挑战/角色渲染器和课程定义与横屏改动前一致，触控只加反馈，整段 game.js 去除明确的横屏提示/安全暂停/瞄准反馈新增后与改前一致。
+- **最新验证记录**：11 月 2 日仓库清理后 **178/178 测试**及语法检查通过，日志在 artifacts/repository-cleanup-2026-11-02/。此前从初始 Git 提交还原的 118 文件工程也通过同样 178 项测试，复用了本机依赖。最近 GUI 是双语交付时的六尺寸 124 中文状态、109 英文状态/78 配色、中文三套完整教程（27 次合法回球）与九尺寸触控检查；11 月 2 日清理和本次文档整理未新增 GUI/Windows 真机验证。
 - **验证待补**：用户已经在真实手机打开游戏，反馈默认竖屏难受；新教程及手机手感仍待进一步试玩，浏览器模拟不等于真机。系统 Edge 仍启动后原生崩溃（0xC0000005 / 调试连接 1006），隐藏 Electron 检查退出 2147483651；已改用项目 artifacts/browser-runtime 内独立官方 Chrome Headless Shell 完成本轮 GUI，无系统权限/安装/防火墙改动。旧完整 verify-browser 默认分支仍有封面旧设计断言，第 40 节记录限制；使用 --tutorial、--mobile-controls 和 --menu-design 运行相应检查。
 - **启动与更新**：根目录 `启动游戏.lnk` 或 `npm.cmd run desktop` 读取当前源码；手机访问用 `npm.cmd run start:lan`，PowerShell 不必改执行策略。`dist/Shuttle Flow-win32-x64/Shuttle Flow.exe` 是已同步新手教程、手机触控、人机三档强度平移、用户图片封面与白天 UI 的 Windows 文件夹版。重开旧窗口即可加载更新。打包应使用 **`node scripts/build-desktop.mjs --reuse-runtime`**：校验已安装 Electron 44.7.0，再更新 ASAR；普通完整打包曾因缓存/解压权限失败并删除已有输出，当前不要直接重跑。已逐文件确认发布档案与源码相同。
-- **分享包状态**：当前可分享 `dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip`（约 168 MiB），为当前源码重新打包的独立副本，含英语/简体中文及当前全部功能。原 bilingual.zip 保留；同日无 bilingual 后缀 ZIP 为加语言前快照，2026-10-09 Windows/Mac ZIP 更早。Mac 本次未更新或完成真机验证。历史章节的 ZIP 状态以各节时间为准。
-- **工作入口与边界**：最近模块为 `touch-input.js`、`tutorial.js`，对应 `mobile-controls.test.js`、`tutorial.test.js`；游戏接入在 `game.js`，界面在 `index.html` / `style.css`，HTTP 允许列表在 `server.js`。生产脚本测试共用 `scripts/lib/game-fixture.mjs`；浏览器检查见 `scripts/verify-browser.mjs` 的 `--tutorial` / `--mobile-controls` / `--menu-design` 分支，发布与 HTTP 检查见 `scripts/verify-mobile-support.mjs --tutorial`。落点挑战在 `target-challenge.js`；外观数据在 `appearance.js`；角色适配源码在 `scripts/pixel-athlete-game.mjs`，改后可 `npm.cmd run build:game-renderer` 使用原 GLB 重新生成 bundle。修改前按范围读现有文件，不要手改 `dist/` 内玩法或重建整套模型。
+- **分享包状态**：当前可分享 `dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip`（176,117,610 字节，168.0 MiB），是 11 月 1 日的双语功能快照。11 月 2 日仓库清理与文档更新后未重封装 Windows 文件夹版或 ZIP；游戏运行代码相同，但旧包还含清理前的停用资源/说明，不能声称与清理后整个源码目录逐文件一致。原 bilingual.zip 保留；同日无 bilingual 后缀 ZIP 为加语言前快照，2026-10-09 Windows/Mac ZIP 更早。Mac 本次未更新或完成真机验证。
+- **工作入口与边界**：最近模块为 `i18n.js`、`touch-input.js`、`tutorial.js`，对应 `language.test.js`、`mobile-controls.test.js`、`tutorial.test.js`。游戏接入在 `game.js`，界面在 `index.html` / `style.css`，HTTP 允许列表在 `server.js`；测试共用 scripts/lib/game-fixture.mjs。浏览器按任务使用 --language / --tutorial --chinese / --mobile-controls / --menu-design，双语发布/HTTP 核对用 scripts/verify-mobile-support.mjs --language（依赖本机忽略的 ASAR 基线）。落点挑战在 target-challenge.js；外观在 appearance.js；角色适配源码 scripts/pixel-athlete-game.mjs 可经 npm.cmd run build:game-renderer 重新生成正式 bundle。不要手改 dist 内玩法，也不要恢复已删除的历史 review bundle。
 - **待办与授权**：本次授权的球馆细化、明亮菜单、全英文、加大主菜单、场内弹窗配色、用户图片封面、白天球馆、人机档位平移、手机触控第一版及新手教程已完成，等待试玩反馈。闯关挑战、精彩回放、局后复盘、成就/外观解锁仍只是建议，未授权实现；小程序迁移与音效细调继续暂缓。当前已初始化 Git 并上传 luyuhao666/shuttle-flow；未发现 `AGENTS.md`，无仍在等待的用户确认。
 
-## 当前交接重点（先读这里）
+## 早期交接重点（历史汇总，当前状态以顶部和第 46 节为准）
 
 - **最新：练习模式新增落点挑战**：用户授权将其与现有喂球练习并列。练习设置里新增“喂球练习 / 落点挑战”，挑战可选综合/后场/网前与 20 球/不限球数；六个左右网前/中场/后场目标按球轮换，中心区奖励更高。稳定原热身喂球，不渐加速、不重置玩家位置；真实回球落地计分（目标 100 / 中心 150），先处理实际出界/下网，漏接同样计球。目标颜色反馈与简洁提示模式兼容，汇总命中率、中心、连续命中和四类失误；挑战不混入原练习分数/最高分。新增独立 `target-challenge.js`，file://、HTTP 和 Windows 都加载。139 项测试通过，包括原游戏整段脚本的菜单/挥拍/时钟/暂停/四类结果/20 球与无限流程；本轮未做真实窗口布局验证，旧截图不代表本轮。详见第 32 节。
 
@@ -87,12 +88,12 @@
 
 ## 2. 启动、验证与当前状态
 
-- 双击 `index.html` 即可用浏览器打开。项目特意保留 `file://` 直接运行能力，脚本、样式和音效都在本地，不能随意改成需要 `fetch()` 或构建服务才能加载的资源。脚本顺序为 `core.js` → `target-challenge.js` → `sounds.js` → `appearance.js` → `guidance.js` → `assets/characters/pixel-athlete-v2/game-renderer.js` → `game.js`；上述运行脚本均已加入 `server.js` 的允许服务列表。
+- 双击 `index.html` 即可用浏览器打开。保留 `file://` 直接运行能力，脚本、样式、模型与音效都在本地。当前脚本顺序为 `i18n.js` → `core.js` → `target-challenge.js` → `sounds.js` → `appearance.js` → `guidance.js` → `touch-input.js` → `tutorial.js` → `assets/characters/pixel-athlete-v2/game-renderer.js` → `game.js`；上述运行脚本均已加入 server.js 允许列表。
 - Windows 独立窗口：双击 `启动游戏.lnk` 读取实时源码，或运行 `npm run desktop`。当前用 `node scripts/build-desktop.mjs --reuse-runtime` 更新便携文件夹版，原因见接手速览与第 28 节。玩家双击 `dist/Shuttle Flow-win32-x64/Shuttle Flow.exe`，无需浏览器/Node 服务。发布时分享整个文件夹，源码修改后需重新打包更新发布版；已有分享 ZIP 不会自动更新。
-- 可选：有 Node.js 时在本目录运行 `npm start`，打开 `http://localhost:3000`。`server.js` 只是本地静态文件服务，不是必须部署的后端；没有 npm 依赖安装步骤。
-- 游戏代码修改后运行 `npm test`、`npm run check`。最近一次功能交付（2026-10-10）为 **139 项测试全部通过，语法检查通过**；本次交接整理只改文档，未重新运行游戏测试。`npm run verify:desktop` 与 `node scripts/verify-browser.mjs` 用于真实窗口回归，但当前执行环境限制见第 28 节，最新功能尚未完成真实 GUI 回归。现有脚本覆盖离线/HTTP、输入与触球、设置、比赛/专项及桌面/手机布局；落点挑战当前由规则与生产游戏脚本的 DOM 替身测试覆盖。历史截图不能代替本轮窗口或真人手感验证。
+- 可选：有 Node.js 时在本目录运行 npm.cmd start，打开 http://localhost:3000。server.js 是无需额外 npm 包的静态服务；手机访问另用 npm.cmd run start:lan。若要运行 Electron、测试或构建，新克隆工程须先 npm.cmd ci 安装 package-lock.json 中的依赖。
+- 游戏代码修改后运行 npm.cmd test、npm.cmd run check。最近一次为 11 月 2 日清理后 **178 项测试与语法检查通过**；本次收尾整理只改文档，没有重新运行游戏测试。双语 GUI 已通过指定分支验证，详见第 45、46 节；旧默认完整浏览器分支含过时封面断言，系统 Edge / 隐藏 Electron 还有既有环境限制，不能宣称默认分支或 Windows EXE 本轮均通过。
 - `file://` 与 `http://localhost:3000` 的 `localStorage` 分属不同来源，最高分和默认力度不会自动互通。
-- 当前目录没有 Git 仓库；若新对话需要版本管理，应先确认用户意愿和工作区情况。
+- 当前目录已是 Git 仓库，origin=https://github.com/luyuhao666/shuttle-flow.git，main 已跟踪 origin/main。用户已授权上传、协作和本次清理同步；后续操作先看 git status / git log 与远端状态，保留队友变更，勿重新 git init 或重置历史。
 
 ## 3. 当前玩法与操作
 
@@ -316,9 +317,9 @@
 
 ## 9. 给下一段对话的最短上下文
 
-当前停点：用户澄清不要减少身高，只要人物弓腰等球。已恢复原 `48*s` 显示尺寸，保留候球弓腰、屈膝与已授权的低马步和杀球高度修正，详见第 14 节。不要再把“压低姿态”解释成“缩小人物”。
+当前停点：用户准备开启新对话。双语切换、Windows 试玩包、GitHub 上传/队友加入与缓存/停用文件清理均已完成；新功能等待用户下一条明确需求，后续重心在电脑操作。人物保留原身高，通过弓腰、屈膝/低马步表现候球，不要把低姿态理解成整体变矮。
 
-> 请先阅读 `D:\codex_try\Shuttle Flow\HANDOFF.md` 的“新对话接手速览”和第 26～32 节，再看 `README.md`。请在现有 Shuttle Flow 工程内继续，不要重做游戏；保留原身高、弓腰/低马步、换向惯性和原点杀/跳杀规则。正式游戏已接入像素风 3D 蓝衣 7 号角色与九段动作；球衣/球拍分别自定义，配色只用固定色块，默认简洁提示，场景头顶 logo 已删。人机三档实力/四种风格已重新调校。最新练习模式可并列选择喂球练习和落点挑战，含综合/后场/网前、20 球/不限，真实落地计分与总结。最近 139 项测试和语法通过，最新真实 GUI 与落点挑战真人反馈待补。源码与 Windows 文件夹版已同步；旧 Windows/Mac ZIP 仍是 2026-10-09 快照。开发双击 `启动游戏.lnk`，更新当前 Windows 版用 `node scripts/build-desktop.mjs --reuse-runtime`。小程序和音效细调暂缓，其他新玩法建议尚未授权，按我的下一条需求继续。
+> 请先阅读 `D:\codex_try\Shuttle Flow\HANDOFF.md` 的“新对话接手速览”和第 46 节，按需读第 45 节及 README。继续现有 Shuttle Flow，后续以电脑操作为主，保留球场/镜头、原身高、弓腰/低马步、换向惯性与原点杀/跳杀规则。已完成默认英语、设置切简体中文，八课定格教程、手机横屏、三档人机、四种打法和个性化/落点挑战。GitHub 仓库为 luyuhao666/shuttle-flow，当前 Public；用户已从成员页确认 chinasocialism 加入。清理提交 72e0e32 已推送，之后文档提交看 git log；改动前先检查本地/远端及队友更新。11 月 2 日 178 项测试与语法通过；真实 Windows EXE 和新版手机手感验证仍有边界。最新试玩包是 dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip，11 月 2 日清理后未重封装。联机、微信、闯关/复盘等仍未实施，按我的下一条需求继续。
 
 ## 10. 最新完成：简洁动漫运动员 3D 模型原型
 
@@ -838,3 +839,45 @@
 - 新分享包 dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual.zip：176,117,610 字节（168.0 MiB），完整 75 文件逐个 SHA-256 与发布目录比对通过；默认仍英语，不含作者存档。SHA-256：ae0fb63b6a3828b0db5cb5027f324bc46d9a90389d4a615a71e74a65a6896c41。
 - 报告 artifacts/release-win-2026-11-01-bilingual.json、language-support-checks.json、language-package-assets-checks.json；旧无 bilingual 后缀 ZIP 和 Mac 包不覆盖。朋友使用新版 ZIP 才有语言功能。
 - 改前源码在 artifacts/language-before-source，完整原 ASAR 为 language-before.asar。后续仍以电脑操作为主，其他未来玩法/联机/微信方向没有新增授权。
+
+## 46. 本段对话收尾与新对话接手入口（2026-11-02）
+
+### 用户方向与已完成范围
+
+- 用户最新要求是整理 HANDOFF 后开新对话；当前没有正在实施的新功能，也没有等待中的用户确认。下一段按用户新需求继续，后续重心是电脑操作。
+- 本段已完成手机横屏改善、设置内 English / 简体中文切换、Windows 试玩打包、GitHub 首次上传/协作检查与仓库清理。正常启动默认英语，语言选择立即生效并保存；八课教程、练习/落点挑战、专项、人机、外观与原键鼠继续保留。
+- 保留当前球场、镜头、身高和原手感；候球低姿态通过弓腰、屈膝和低马步实现。不得重做工程、为了角色或新玩法收紧原点杀/跳杀判定、故意降低球高点速度，或恢复原生调色盘。
+- 房间码、随机匹配、服务器、微信小游戏、闯关、精彩回放、局后复盘、成就/解锁仍只有讨论或建议，没有实施授权；音效细调继续暂缓。
+
+### GitHub、队友及清理
+
+- 仓库：https://github.com/luyuhao666/shuttle-flow；origin 为同地址加 .git，默认分支 main，已设置 main 跟踪 origin/main。
+- 初始上传提交 6c6f88a315894123647d1d9c13c9e2c34edcef46，118 文件；清理提交 **72e0e32426308989e171751fe914e195249a9952** 已成功推送，并以 GitHub main 接口独立核对。清理后跟踪 **116 文件**。本次交接文档整理是后续独立提交，其具体 SHA 以 git log / 远端分支为准。
+- **仓库是 Public，不是 Private**：11 月 2 日通过仓库元数据和未登录 API 请求核实，已明确告知用户；本段没有更改可见性。后续不能把“用户最初说是 Private”当成当前状态，也不要自行改回 Private。
+- 队友 GitHub 用户名 **chinasocialism**。用户已从 Settings → Collaborators 页面明确确认“已列为协作者，没有待接受提示”，因此按用户确认视为已加入，不再反复询问。当前 GitHub 连接查询成员权限时返回 403 Resource not accessible by integration，仅表示连接无此查询权限，不能据此说队友邀请失败，也不能说已经通过接口独立确认。
+- 已删除 scripts/__pycache__/package-macos.cpython-312.pyc 和 assets/characters/pixel-athlete-v2/review-game-renderer.js；后者在项目说明和引用搜索中均已确认停用。正式 game-renderer.js、独立 preview.js、原 GLB 和建模/适配源码仍保留，不能误删或恢复旧 review bundle。
+- .gitignore 增加 __pycache__/、*.py[cod]，已验证匹配。此前已有 node_modules/、dist/、artifacts/、*.lnk、.env/.env.*（保留 .env.example）等忽略规则。依赖锁文件、正式源码与素材、测试、README/HANDOFF 应继续提交。
+- 删除文件备份位于本机被忽略的 artifacts/repository-cleanup-2026-11-02；本次只清理源码仓库，没有重写旧提交或重新生成试玩包。
+- 改动前先看 git status、git log 和远端状态，保留队友修改，优先按功能分支/PR 协作；不要重新初始化仓库或强制覆盖远端。
+
+### Git 网络与权限的已知情况
+
+- 用户首次普通 HTTPS 推送遇到 Recv failure: Connection was reset，切 HTTP/1.1 单独重试仍失败。后续检查发现 Windows 系统代理为 127.0.0.1:7897，显式走该代理可连接 GitHub；指定代理后用户成功完成首次上传，后续清理提交也使用该路径成功推送。
+- 本段推送用的是单次配置：git -c http.proxy=http://127.0.0.1:7897 -c http.version=HTTP/1.1 push origin main，没有为用户永久设置全局代理。端口来自当前电脑的当次检查；新环境或代理变化时先重新核对，不能当通用固定值。
+- 执行工具的受限环境中，Git 凭据助手调用 sh/bash 曾因 NtCreateDirectoryObject / 0xC0000022 无法启动。已在用户授权更新仓库的范围内，通过受限环境外的 Git 调用成功推送；这是执行环境限制，与 GitHub 成员查询 403 是不同问题。后续保持凭据交由登录工具管理，不在输出、文档或命令里粘贴令牌。
+
+### 运行、测试与队友首次克隆
+
+- 本机开发可双击启动游戏.lnk 或在项目根目录 npm.cmd run desktop；浏览器可直接打开 index.html，或 npm.cmd start 使用本地静态服务。手机同网络访问用 npm.cmd run start:lan；这是单机游戏网页，不是玩家联机。
+- 队友从仓库克隆后应进入自己的项目目录，先 npm.cmd ci，再 npm.cmd run desktop / npm.cmd test / npm.cmd run check。本机安装的 Node 为 v24.15.0，锁定 Electron 44.7.0；不上传 node_modules 或借用本机绝对路径快捷方式。
+- 11 月 2 日先对初始 Git 提交导出的源码运行测试，178/178 通过（复用本机已安装依赖）；清理两文件后再次 178/178 通过，npm.cmd run check 通过。日志在 artifacts/repository-cleanup-2026-11-02/{tests,check}.log。本次 HANDOFF 收尾只改文档，未新增功能或重跑游戏测试。
+- 最近 GUI 是双语交付时的 --language（六尺寸 124 中文状态）、--menu-design（109 英文状态/78 配色）、--tutorial --chinese（六尺寸，三套完整八课，共 27 次合法回球）及 --mobile-controls（九尺寸）检查；使用独立 Chrome Headless Shell。系统 Edge / 隐藏 Electron 仍有此前环境限制，没有新 Windows EXE 真窗口或新版手机真机试玩结论。
+- 浏览器运行库在本机 artifacts/browser-runtime，通过 SHUTTLE_CHECK_BROWSER 指定；Git 克隆不含该忽略目录。verify-mobile-support.mjs --language 还依赖本机 artifacts/language-before.asar 基线；缺少这些历史比较产物不代表游戏源码缺失，不能把整个 artifacts 上传来解决。
+- 仓库审计报告 artifacts/repository-audit-2026-11-02/repository-audit.json 是**清理前的审计快照**，其中 118 文件/邀请未确认等字段不代表后续最终状态。用户随后已确认成员加入，清理已推送。审计导出的 source.zip 和日志保留，临时 checkout 副本已删除，避免 node --test 递归把测试重复计算成 356 项。
+
+### 分享包与打包边界
+
+- 最新可分享文件：**dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip**，176,117,610 字节（168.0 MiB），完整 75 文件，SHA-256 为 5641512999a155cf5e50095eb76148311c740c6ccec428da06a9cc78f6d0f5a1。报告 artifacts/release-win-2026-11-01-bilingual-2.json。朋友解压整个文件夹后双击 Shuttle Flow.exe；默认英语，设置可切简体中文，不含作者存档。
+- 原 bilingual.zip 为同功能的较早打包副本；无 bilingual 后缀的 11 月 1 日 ZIP 尚未含语言切换。10 月 9 日 Windows/Mac ZIP 更旧，Mac 仍无本次更新或真机验证。
+- 本机 Windows 文件夹版和最新 ZIP 都在 11 月 1 日同步生成。11 月 2 日只删除未用资源、Python 缓存并更新说明，游戏运行代码相同，但未重新打包；旧包仍含历史停用文件，旧逐文件一致性报告仅代表打包当时。后续只有明确需要刷新分享版时才重封装并重新校验。
+- 本机已有 dist 运行库，更新继续用 node scripts/build-desktop.mjs --reuse-runtime，避免已知有缓存/解压权限问题的完整覆盖路径。**新克隆没有 dist，不能直接使用 --reuse-runtime**；首次构建需准备完整运行库并按常规构建流程验证。不要手改 dist 内游戏代码。
