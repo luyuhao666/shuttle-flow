@@ -1,8 +1,10 @@
 # Shuttle Flow 项目交接（原羽间 / Shuttle Club）
 
-更新日期：2026-11-01（设置新增英语/简体中文切换，Windows 双语试玩包已更新）。工作目录：`D:\codex_try\Shuttle Flow`。本文供接手开发的下一段对话快速掌握项目现状；玩家操作说明另见 `README.md`。**本文件记录的是当前代码和已经达成的用户偏好，后续需求仍以用户在新对话中的最新要求为准。**
+更新日期：2026-11-02（GitHub 已上传并检查，补充仓库缓存/停用文件清理记录）。工作目录：`D:\codex_try\Shuttle Flow`。本文供接手开发的下一段对话快速掌握项目现状；玩家操作说明另见 `README.md`。**本文件记录的是当前代码和已经达成的用户偏好，后续需求仍以用户在新对话中的最新要求为准。**
 
-## 新对话接手速览（2026-11-01）
+## 新对话接手速览（2026-11-02）
+
+- **最新：GitHub 协作与仓库清理（11 月 2 日）**：仓库 https://github.com/luyuhao666/shuttle-flow 已上传，初始 main 提交为 6c6f88a，118 个文件与本地一致。用户从成员页确认 chinasocialism 已列为协作者、无待接受提示；当前连接的成员权限接口返回 403，未以接口独立验证邀请。仓库当前为 Public，已告知用户。按用户授权删除已跟踪的 Python 缓存 scripts/__pycache__/package-macos.cpython-312.pyc 和已停用的 assets/characters/pixel-athlete-v2/review-game-renderer.js，补 __pycache__/ 与 *.py[cod] 忽略规则。两份删除文件备份在被忽略的 artifacts/repository-cleanup-2026-11-02。178/178 测试与语法检查通过；普通运行无需该历史 bundle。此前审计生成的临时 checkout 已清除，审计源码 ZIP 与报告保留，避免 Node 递归重复发现测试。正式游戏逻辑/素材入口保持现有版本。
 
 - **最新：再次打包 Windows 双语版（11 月 1 日）**：按用户“再打包一份”重新用 --reuse-runtime 同步当前源码并生成独立 ZIP：dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip。51 个源码/素材文件与新 ASAR 一致，75 个压缩文件逐个 SHA-256 与发布目录比对；记录 artifacts/release-win-2026-11-01-bilingual-2.json。游戏功能与第 45 节相同，默认英语，可在设置切换简体中文；旧 ZIP 保留。
 
@@ -43,7 +45,7 @@
 - **启动与更新**：根目录 `启动游戏.lnk` 或 `npm.cmd run desktop` 读取当前源码；手机访问用 `npm.cmd run start:lan`，PowerShell 不必改执行策略。`dist/Shuttle Flow-win32-x64/Shuttle Flow.exe` 是已同步新手教程、手机触控、人机三档强度平移、用户图片封面与白天 UI 的 Windows 文件夹版。重开旧窗口即可加载更新。打包应使用 **`node scripts/build-desktop.mjs --reuse-runtime`**：校验已安装 Electron 44.7.0，再更新 ASAR；普通完整打包曾因缓存/解压权限失败并删除已有输出，当前不要直接重跑。已逐文件确认发布档案与源码相同。
 - **分享包状态**：当前可分享 `dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip`（约 168 MiB），为当前源码重新打包的独立副本，含英语/简体中文及当前全部功能。原 bilingual.zip 保留；同日无 bilingual 后缀 ZIP 为加语言前快照，2026-10-09 Windows/Mac ZIP 更早。Mac 本次未更新或完成真机验证。历史章节的 ZIP 状态以各节时间为准。
 - **工作入口与边界**：最近模块为 `touch-input.js`、`tutorial.js`，对应 `mobile-controls.test.js`、`tutorial.test.js`；游戏接入在 `game.js`，界面在 `index.html` / `style.css`，HTTP 允许列表在 `server.js`。生产脚本测试共用 `scripts/lib/game-fixture.mjs`；浏览器检查见 `scripts/verify-browser.mjs` 的 `--tutorial` / `--mobile-controls` / `--menu-design` 分支，发布与 HTTP 检查见 `scripts/verify-mobile-support.mjs --tutorial`。落点挑战在 `target-challenge.js`；外观数据在 `appearance.js`；角色适配源码在 `scripts/pixel-athlete-game.mjs`，改后可 `npm.cmd run build:game-renderer` 使用原 GLB 重新生成 bundle。修改前按范围读现有文件，不要手改 `dist/` 内玩法或重建整套模型。
-- **待办与授权**：本次授权的球馆细化、明亮菜单、全英文、加大主菜单、场内弹窗配色、用户图片封面、白天球馆、人机档位平移、手机触控第一版及新手教程已完成，等待试玩反馈。闯关挑战、精彩回放、局后复盘、成就/外观解锁仍只是建议，未授权实现；小程序迁移与音效细调继续暂缓。当前无 Git 仓库，也无发现的 `AGENTS.md`；无仍在等待的用户确认。
+- **待办与授权**：本次授权的球馆细化、明亮菜单、全英文、加大主菜单、场内弹窗配色、用户图片封面、白天球馆、人机档位平移、手机触控第一版及新手教程已完成，等待试玩反馈。闯关挑战、精彩回放、局后复盘、成就/外观解锁仍只是建议，未授权实现；小程序迁移与音效细调继续暂缓。当前已初始化 Git 并上传 luyuhao666/shuttle-flow；未发现 `AGENTS.md`，无仍在等待的用户确认。
 
 ## 当前交接重点（先读这里）
 

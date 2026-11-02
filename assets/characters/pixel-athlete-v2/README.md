@@ -26,7 +26,7 @@ npm run verify:pixel-athlete
 npm run pixel-athlete:shortcut
 ```
 
-建模源文件：`scripts/lib/pixel-athlete-model.mjs`，动作源文件：`scripts/lib/pixel-athlete-motion.mjs`，游戏适配：`scripts/pixel-athlete-game.mjs`。构建同时输出 GLB、独立预览与正式 `game-renderer.js`；`index.html` 和服务器已切换到它。历史 `review-game-renderer.js` 不再使用。Windows 程序更新运行 `npm run build:desktop`。
+建模源文件：`scripts/lib/pixel-athlete-model.mjs`，动作源文件：`scripts/lib/pixel-athlete-motion.mjs`，游戏适配：`scripts/pixel-athlete-game.mjs`。构建同时输出 GLB、独立预览与正式 `game-renderer.js`；`index.html` 和服务器已切换到它。已清理停用的历史预览 bundle，正式游戏与独立模型预览继续使用各自当前入口。Windows 程序更新运行 `npm run build:desktop`。
 
 `verify:pixel-athlete` 检查零错误/零警告 GLB、原身高、归一化蒙皮、九段动作每段 121 个姿态下的真实变形鞋底与膝盖方向、并步支撑/脚间距、反手手臂与躯干近似包络避让、拍杆/拍框/拍面跨线与实际变形球衣/头部的交叉，以及触球阶段向反手侧前方的拍头方向、循环与回位衔接；还实际验证离线播放、慢放、暂停、逐帧、拖动进度、桌面/手机布局及关键游戏文件 SHA-256 不变。手臂检查为骨段与躯干包络近似；球拍检查对实际蒙皮表面求交，采样拍杆、拍框和拍面跨度。仍不是任意姿态、所有网格之间的完整碰撞保证。报告在 `artifacts/pixel-athlete-*.json`。
 

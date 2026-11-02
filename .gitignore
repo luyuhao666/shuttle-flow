@@ -14,3 +14,7 @@ artifacts/
 .env
 .env.*
 !.env.example
+
+# Python-generated cache files
+__pycache__/
+*.py[cod]
