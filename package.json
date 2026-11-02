@@ -1,0 +1,40 @@
+{
+  "name": "shuttle-flow",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "productName": "Shuttle Flow",
+  "description": "An offline badminton game with practice, matches and training.",
+  "scripts": {
+    "start": "node server.js",
+    "start:lan": "node server.js --lan",
+    "desktop": "electron .",
+    "desktop:shortcut": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1",
+    "build:desktop": "node scripts/build-desktop.mjs",
+    "build:mac": "node scripts/build-macos.mjs",
+    "verify:desktop": "node scripts/verify-desktop.mjs",
+    "test": "node --test",
+    "check": "node --check i18n.js && node --check game.js && node --check touch-input.js && node --check tutorial.js && node --check core.js && node --check target-challenge.js && node --check guidance.js && node --check appearance.js && node --check sounds.js && node --check server.js && node --check desktop/main.cjs && node --check desktop/window-state.cjs && node --check scripts/build-desktop.mjs && node --check scripts/verify-desktop.mjs && node --check scripts/lib/athlete-model.mjs && node --check scripts/lib/athlete-motion.mjs && node --check scripts/lib/verify-athlete-motion.mjs && node --check scripts/build-athlete-model.mjs && node --check scripts/athlete-preview.mjs && node --check scripts/verify-athlete.mjs && node --check desktop/athlete-preview.cjs && node --check scripts/athlete-game.mjs && node --check scripts/lib/pixel-athlete-model.mjs && node --check scripts/lib/pixel-athlete-motion.mjs && node --check scripts/lib/pixel-athlete-foot-support.mjs && node --check scripts/lib/verify-pixel-athlete-motion.mjs && node --check scripts/lib/verify-backhand-racket.mjs && node --check scripts/build-pixel-athlete.mjs && node --check scripts/pixel-athlete-preview.mjs && node --check scripts/pixel-athlete-game.mjs && node --check scripts/verify-pixel-athlete.mjs && node --check scripts/verify-game-motion-cpu.mjs && node --check scripts/verify-browser.mjs && node --check scripts/build-macos.mjs && node --check scripts/verify-ai.mjs && node --check scripts/lib/ai-simulation.mjs && node --check scripts/build-game-renderer.mjs && node --check scripts/lib/racket-appearance.mjs",
+    "build:audio": "node scripts/build-audio.mjs",
+    "build:athlete": "node scripts/build-athlete-model.mjs",
+    "build:pixel-athlete": "node scripts/build-pixel-athlete.mjs",
+    "preview:pixel-athlete": "electron desktop/athlete-preview.cjs --pixel-athlete",
+    "pixel-athlete:shortcut": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-pixel-athlete-shortcut.ps1",
+    "verify:game-motion": "node scripts/verify-game-motion-cpu.mjs",
+    "verify:pixel-athlete": "node scripts/verify-pixel-athlete.mjs",
+    "verify:athlete": "node scripts/verify-athlete.mjs",
+    "preview:athlete": "electron desktop/athlete-preview.cjs",
+    "athlete:shortcut": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-athlete-shortcut.ps1",
+    "verify:ai": "node scripts/verify-ai.mjs",
+    "build:game-renderer": "node scripts/build-game-renderer.mjs",
+    "verify:rackets": "node scripts/verify-game-motion-cpu.mjs --rackets"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "44.7.0",
+    "esbuild": "0.28.2",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "three": "0.186.1"
+  }
+}

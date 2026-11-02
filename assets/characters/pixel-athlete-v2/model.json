@@ -1,0 +1,130 @@
+{
+  "version": "0.3.1",
+  "stage": "gameplay integrated",
+  "file": "athlete.glb",
+  "gameplayIntegrated": true,
+  "gameplayRenderer": "game-renderer.js",
+  "reference": "../pixel-athlete-reference.png",
+  "palette": {
+    "Skin": "#edbb94",
+    "SkinShade": "#d79870",
+    "Jersey": "#2264c8",
+    "JerseyDark": "#174aa0",
+    "Stripe": "#53b5ee",
+    "SockStripe": "#2264c8",
+    "ShortsStripe": "#53b5ee",
+    "JerseyNumber": "#f5f3e8",
+    "White": "#f5f3e8",
+    "Shorts": "#202d46",
+    "Hair": "#493025",
+    "HairLight": "#694533",
+    "HairDark": "#302019",
+    "Orange": "#f77927",
+    "OrangeDark": "#d4531e",
+    "Guard": "#262e37",
+    "GuardTrim": "#69757b",
+    "Sole": "#dc9c44",
+    "Eye": "#35241f",
+    "Iris": "#824d2b",
+    "Lip": "#ad7465"
+  },
+  "joints": [
+    "Hips",
+    "Spine",
+    "Chest",
+    "Neck",
+    "Head",
+    "RightShoulder",
+    "RightUpperArm",
+    "RightForeArm",
+    "RightHand",
+    "RightUpperLeg",
+    "RightLowerLeg",
+    "RightUpperLegTwist",
+    "RightFoot",
+    "RightLowerLegTwist",
+    "RightHeel",
+    "RightToe",
+    "RightToeTip",
+    "LeftShoulder",
+    "LeftUpperArm",
+    "LeftForeArm",
+    "LeftHand",
+    "LeftUpperLeg",
+    "LeftLowerLeg",
+    "LeftUpperLegTwist",
+    "LeftFoot",
+    "LeftLowerLegTwist",
+    "LeftHeel",
+    "LeftToe",
+    "LeftToeTip"
+  ],
+  "triangles": 15777,
+  "bodyTriangles": 14129,
+  "bytes": 3721748,
+  "floor": 0.035,
+  "top": 1.931166648864746,
+  "animations": {
+    "Idle": {
+      "label": "弓腰候球",
+      "duration": 2.4,
+      "loop": true
+    },
+    "Sidestep": {
+      "label": "左右并步",
+      "duration": 1.8,
+      "loop": true
+    },
+    "Run": {
+      "label": "跑动",
+      "duration": 0.85,
+      "loop": true,
+      "treadmillSpeed": 0.8924949290060853
+    },
+    "Jump": {
+      "label": "起跳落地",
+      "duration": 1.55,
+      "loop": false,
+      "takeoff": 0.28,
+      "landing": 0.72
+    },
+    "Forehand": {
+      "label": "正手挥拍",
+      "duration": 1.45,
+      "loop": false,
+      "contact": 0.48
+    },
+    "Backhand": {
+      "label": "反手挥拍",
+      "duration": 1.55,
+      "loop": false,
+      "contact": 0.48
+    },
+    "Smash": {
+      "label": "跳杀",
+      "duration": 1.65,
+      "loop": false,
+      "takeoff": 0.28,
+      "landing": 0.72,
+      "contact": 0.49
+    },
+    "Lunge": {
+      "label": "网前跨步",
+      "duration": 1.35,
+      "loop": false,
+      "contact": 0.48
+    },
+    "Serve": {
+      "label": "低手发球",
+      "duration": 1.25,
+      "loop": false,
+      "contact": 0.48
+    }
+  },
+  "racket": {
+    "separate": true,
+    "inherited": true,
+    "parent": "RightHand",
+    "locator": "RacketContact"
+  }
+}

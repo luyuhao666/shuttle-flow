@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; object-src 'none'">
+  <title>Shuttle Flow · 3D 角色预览</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:"Segoe UI","Microsoft YaHei",sans-serif;color:#173a3d;background:#edf0e7}
+    body{display:grid;grid-template-columns:minmax(0,1fr) 290px;overflow:hidden}
+    main{position:relative;min-width:0;min-height:0}#viewport{display:block;width:100%;height:100%;touch-action:none}
+    .caption{position:absolute;left:32px;top:28px;pointer-events:none}.caption h1{margin:0 0 8px;font-size:28px;font-weight:650}.caption p{margin:0;font-size:15px;color:#526b66}
+    #loading{position:absolute;inset:0;display:grid;place-content:center;padding:30px;text-align:center;font-size:18px;pointer-events:none}#loading[hidden]{display:none}
+    aside{padding:28px 22px;overflow:auto;background:#f8f9f2;border-left:1px solid #d7dfd1}
+    h2{font-size:19px;font-weight:650;margin:0 0 14px}.section{margin-bottom:26px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    button{font:inherit;font-size:16px;min-height:44px;border:1px solid #c9d4c6;border-radius:9px;background:#e9eee1;color:#21494b;cursor:pointer;padding:9px 10px}
+    button:hover{background:#dbe7cc}button[aria-pressed=true]{background:#b9d79c;border-color:#6f9358;color:#183621}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #386d7c;outline-offset:3px}
+    .wide{width:100%;margin-top:10px}.row{display:flex;align-items:center;gap:10px;font-size:16px;margin-top:12px}.row input[type=checkbox]{width:19px;height:19px;accent-color:#679951}#speed{width:100%;accent-color:#679951;margin-top:12px}
+    .note{font-size:15px;color:#596e66;line-height:1.7;margin:12px 0}.download{display:block;text-align:center;padding:12px;background:#214f51;color:#fff;border-radius:9px;text-decoration:none;font-size:16px}
+    @media(max-width:700px){body{grid-template-columns:1fr;grid-template-rows:minmax(300px,1fr) auto}aside{padding:16px 18px;max-height:42vh;border-left:0;border-top:1px solid #d7dfd1;display:grid;grid-template-columns:1fr 1fr;gap:18px}.section{margin:0}.buttons{gap:6px}.caption{left:20px;top:18px}.caption h1{font-size:23px}#details{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+  <main><canvas id="viewport" aria-label="可旋转的羽毛球运动员三维模型"></canvas><div class="caption"><h1>Shuttle Flow</h1><p>动漫运动员 · 3D 原型</p></div><div id="loading">正在载入角色…</div></main>
+  <aside>
+    <section class="section"><h2>动作</h2><div class="buttons" id="animations"></div><button class="wide" id="pause" aria-pressed="false">暂停动作</button><label class="row" for="speed">速度 <output id="speed-value">1.0×</output></label><input id="speed" type="range" min="0.25" max="1.75" value="1" step="0.25" aria-label="动画速度"></section>
+    <section class="section"><h2>查看角色</h2><div class="buttons"><button data-view="front">正面</button><button data-view="side">侧面</button><button data-view="back">背面</button><button data-view="three-quarter" aria-pressed="true">斜侧</button></div><label class="row"><input type="checkbox" id="rotate">自动旋转</label><label class="row"><input type="checkbox" id="racket" checked>显示球拍</label><label class="row"><input type="checkbox" id="skeleton">显示骨骼</label><button class="wide" id="reset">恢复视角</button><p class="note">拖动旋转 · 滚轮缩放<br>触屏可双指缩放</p></section>
+    <section class="section" id="details"><a class="download" id="download" href="athlete.glb" download="shuttle-flow-athlete-v1.glb">保存 3D 模型</a><p class="note" id="model-note">简化服装与造型，基础动作预览。</p><p class="note">挥拍动作尚未与游戏中的羽毛球对齐。</p></section>
+  </aside>
+  <script src="preview.js"></script>
+</body>
+</html>

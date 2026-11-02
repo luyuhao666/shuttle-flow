@@ -1,0 +1,16 @@
+.browser-check*/
+.browser-smoke.mjs
+node_modules/
+dist/
+.desktop-build-*/
+artifacts/npm-cache/
+启动游戏.lnk
+查看3D角色.lnk
+artifacts/.athlete-preview-profile/
+artifacts/.athlete-check-*/
+artifacts/.athlete-debug-profile/
+artifacts/
+*.lnk
+.env
+.env.*
+!.env.example

@@ -1,0 +1,13 @@
+Generated with the built-in image_gen tool on 2026-10-08.
+Output: anime-athlete-concept-v1.png
+Purpose: visual reference for future 3D modeling; this image is not a rigged 3D asset.
+
+Use case: stylized-concept.
+Asset type: character design reference sheet for a future rigged 3D badminton athlete in the Shuttle Flow game.
+Primary request: Create one original simple anime-inspired badminton athlete, shown consistently from front, side, and back in one clean landscape character turnaround sheet. These are three views of the same athlete, not different characters.
+Subject: young adult male athlete, short tidy black hair, friendly focused face, lean athletic build, natural shoulders, elbows and knees, roughly seven-head adult proportions. Anime facial simplification with restrained eyes, not chibi. Pale sage green short sleeve sports jersey with a small dark teal side insert, plain dark teal above-knee sports shorts, white crew socks, simple white badminton court shoes with subtle teal details, minimal white wristband on the right wrist. No brand markings or lettering.
+Style/medium: polished stylized 3D game character render, clean rounded forms, economical geometry, matte materials, soft cel-like shading, subtle cloth seams without busy surface detail. A practical approachable indie sports game character, not photorealistic or highly ornate.
+Composition/framing: front, true side, and back full-body views at equal scale, feet aligned along the same baseline, all limbs and shoes fully visible with generous margins. Neutral relaxed A-pose, arms slightly away from torso, natural outward elbows, open relaxed hands; consistent anatomy, hairstyle, clothing and proportions in all views. Include one simple badminton racket placed separately in the spare margin, fully visible, oval thin dark teal frame, fine string grid, slim shaft and short white handle, to serve as a separate modeled accessory.
+Scene/backdrop: plain warm off-white studio background, very faint grounding shadows, no scenery or court.
+Lighting/mood: gentle studio light revealing readable volumes, calm and crisp.
+Constraints: no text, no labels, no logo, no watermark, no dramatic action pose, no extra athletes, no exaggerated muscles, no giant head, no oversized eyes, no distorted limbs or hands. This is visual concept art for modeling, not a screenshot of an existing game.

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F7FAF5">
+  <title>Shuttle Flow</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="menu-view">
+  <main class="app">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Shuttle Flow Home"><span class="brand-icon">↗</span><span>Shuttle Flow <small>BADMINTON CLUB</small></span></a>
+      <span class="edition">Practice Court <i></i> REACTION TRAINING</span>
+      <div class="tools"><button id="help-open" aria-label="How to play" title="How to play">?</button><button id="fullscreen" aria-label="Enter fullscreen" title="Fullscreen court">⛶</button><button id="settings-open" data-open-settings aria-label="Settings" title="Settings">⚙</button><button id="sound" aria-label="Mute sound" title="Sound / M (plays a sample when enabled)">♪</button><button id="pause" aria-label="Pause game" title="Pause / P">Ⅱ</button></div>
+    </header>
+    <section class="heading"><div><p class="eyebrow">MOVE. TIME. RETURN.</p><h1>Make every return<span>a better one.</span></h1></div><p class="intro">A little movement. A little timing.<br>Find your rhythm on the court.</p></section>
+    <section class="game-shell" aria-label="Badminton game">
+      <div class="cover-art" aria-hidden="true"><img id="cover-image" src="assets/images/cover-daylight-smash.png" alt="" fetchpriority="high"></div>
+      <div class="hud">
+        <div class="stat"><span id="score-label">SCORE</span><strong id="score">0000</strong></div>
+        <div class="stat combo"><span id="combo-label">COMBO</span><strong id="combo">0 <small>×</small></strong></div>
+        <div class="hud-right"><span id="level">Warm-up · LV. 1</span><div id="hearts" aria-label="Unlimited practice">Practice 0:00</div></div>
+      </div>
+      <div id="match-board" class="match-board hidden" aria-label="Match scoreboard">
+        <div id="match-player" class="match-side"><span>You <i class="serve-dot" aria-hidden="true"></i></span><strong id="match-player-score">0</strong></div>
+        <div class="match-center"><span id="match-format">7 points</span><b>:</b><small id="match-server">CPU serve</small></div>
+        <div id="match-computer" class="match-side"><span>CPU <i class="serve-dot" aria-hidden="true"></i></span><strong id="match-computer-score">0</strong></div>
+        <div id="match-situation" class="match-situation">Ready to receive</div>
+      </div>
+      <div id="action-status" class="action-status">Get ready</div>
+      <div id="ai-status" class="ai-status hidden"></div>
+      <div id="power-status" class="power-status" aria-live="polite"></div>
+      <div id="shot-options" class="shot-options hidden" aria-label="Available shots for the incoming shuttle"><span><kbd>Left click</kbd><b id="option-clear">Clear</b></span><span><kbd>Shift + Left click</kbd><b id="option-drop">Drop</b></span><span><kbd>Right click</kbd><b id="option-smash">Standing smash</b></span></div>
+      <button id="settings-court" class="court-settings" data-open-settings type="button" aria-label="Open settings">⚙ Settings</button>
+      <button id="drill-end" class="drill-end hidden" type="button" aria-label="End practice and view the summary">End session</button>
+      <aside id="tutorial-coach" class="tutorial-coach hidden" aria-labelledby="tutorial-title">
+        <div class="tutorial-heading"><span id="tutorial-step" class="tutorial-kicker">LESSON 1 / 8</span><button id="tutorial-exit" type="button" aria-label="Exit tutorial and return home">Exit</button></div>
+        <div id="tutorial-progress" class="tutorial-progress" role="progressbar" aria-label="Tutorial progress" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"><span id="tutorial-progress-fill"></span></div>
+        <span id="tutorial-state" class="tutorial-state">YOUR FIRST RALLY</span><h2 id="tutorial-title">Move & meet the shuttle</h2>
+        <p id="tutorial-description" aria-live="polite">Learn on the court, one shot at a time.</p><p id="tutorial-controls" class="tutorial-controls"></p>
+        <div class="tutorial-footer"><button id="tutorial-action" class="primary" type="button">Send shuttle <span aria-hidden="true">↗</span></button></div>
+      </aside>
+      <canvas id="court" width="1200" height="720" aria-label="Badminton court. Move with WASD or arrow keys; Space to jump. Follow the moving contact ring. Left-side shots use a backhand. Serve with left click for long or right click for short. During rallies: left click for clear, Shift + left click for drop, right click for attack. Keys 1 to 3 set power; move the mouse to aim."></canvas>
+      <div class="court-label"><span class="live-dot"></span> COURT 01 <span>／</span> <span id="mode-label">Practice</span></div>
+      <div class="best-label">PERSONAL BEST <b id="best">0</b></div>
+      <div id="feedback" class="feedback" aria-live="polite"></div>
+      <div id="overlay" class="overlay">
+        <div class="welcome panel" id="welcome">
+          <div class="menu-brand"><span class="home-tag">THE DAILY COURT</span><h2>Shuttle Flow<span aria-hidden="true">↗</span></h2><p>Your court. Your rhythm.</p></div>
+          <div class="home-navigation" aria-label="Modes and settings">
+            <button id="choose-practice" type="button" aria-label="Practice"><span class="home-entry-index" aria-hidden="true">01</span><span class="home-entry-copy"><b>Practice</b><small>Find your rhythm</small></span><i aria-hidden="true">↗</i></button>
+            <button id="choose-match" type="button" aria-label="Match"><span class="home-entry-index" aria-hidden="true">02</span><span class="home-entry-copy"><b>Match Mode</b><small>Take on your next opponent</small></span><i aria-hidden="true">↗</i></button>
+            <button id="choose-drill" type="button" aria-label="Training"><span class="home-entry-index" aria-hidden="true">03</span><span class="home-entry-copy"><b>Training</b><small>Make every shot count</small></span><i aria-hidden="true">↗</i></button>
+            <button id="personalize-menu" data-open-personalization type="button" aria-label="Personalize"><span class="home-entry-index" aria-hidden="true">04</span><span class="home-entry-copy"><b>Personalize</b><small>Your colors, your court</small></span><i aria-hidden="true">↗</i></button>
+            <button id="settings-menu" data-open-settings type="button" aria-label="Settings"><span class="home-entry-index" aria-hidden="true">05</span><span class="home-entry-copy"><b>Settings</b><small>Fine-tune your game</small></span><i aria-hidden="true">↗</i></button>
+          </div>
+          <div class="home-extras"><span>New here?</span><button id="tutorial-entry" type="button" aria-label="Start the on-court beginner tutorial">Tutorial <span aria-hidden="true">↗</span></button></div>
+        </div>
+        <div class="panel navigation-panel dialog-panel hidden" id="phone-ready" role="dialog" aria-labelledby="phone-ready-title" aria-describedby="phone-ready-description">
+          <header class="panel-header"><span class="panel-kicker">PHONE PLAY</span><h2 id="phone-ready-title">Turn for a wider court</h2></header>
+          <div class="panel-content"><div class="phone-rotate-icon" aria-hidden="true">↻ <span></span></div><p id="phone-ready-description">Hold your phone sideways for more room to move and aim. Your thumbs stay beside the court.</p><p class="phone-ready-note">Move with your left thumb. Choose a shot, then tap and release with your right.</p></div>
+          <footer class="panel-actions"><button id="phone-ready-play" class="primary" type="button">Continue in portrait <span>↗</span></button><button id="phone-ready-back" class="secondary" type="button">Back</button></footer>
+        </div>
+        <div class="panel navigation-panel hidden" id="mode-setup" aria-labelledby="setup-title">
+          <header class="panel-header"><button id="setup-back" class="panel-back" type="button" aria-label="Back to home">← Back</button><div><span class="panel-kicker" id="setup-kicker">PRACTICE</span><h2 id="setup-title">Practice</h2></div></header>
+          <div class="panel-content">
+          <p id="mode-description">Practice footwork, strokes, and jump smashes with CPU feeds.<br>Unlimited feeds, a rising pace, and a session summary.</p>
+          <div id="practice-options">
+            <div class="practice-switch" role="group" aria-label="Practice type"><button data-practice="feed" class="selected" aria-pressed="true" type="button">Feed Practice</button><button data-practice="target" aria-pressed="false" type="button">Target Challenge</button></div>
+            <div id="feed-overview" class="practice-overview"><div><b>Unlimited</b><p>Keep going after a miss. Find your own rhythm.</p></div><div><b>Move · Hit · Jump smash</b><p>The pace builds as you return. Review your session when done.</p></div></div>
+            <div id="target-options" class="drill-options hidden">
+              <span>Target area</span><div role="group" aria-label="Target challenge drill"><button data-target-kind="mixed" class="selected" aria-pressed="true" type="button">Mixed</button><button data-target-kind="deep" aria-pressed="false" type="button">Deep</button><button data-target-kind="net" data-i18n-context="net-area" aria-pressed="false" type="button">Net</button></div>
+              <span>Session length</span><div role="group" aria-label="Target challenge length"><button data-target-limit="20" class="selected" aria-pressed="true" type="button">20 feeds</button><button data-target-limit="0" aria-pressed="false" type="button">Unlimited</button></div>
+              <p class="option-note">Hit the target: +100. Hit the center: +150.</p>
+            </div>
+          </div>
+          <div id="match-options" class="match-options hidden">
+            <section class="match-setting" aria-labelledby="points-title"><h3 id="points-title">Points to Win</h3><div class="match-choices" role="group" aria-labelledby="points-title" aria-describedby="points-note"><button type="button" data-points="7" class="selected" aria-pressed="true">7 Points</button><button type="button" data-points="15" aria-pressed="false">15 Points</button><button type="button" data-points="21" aria-pressed="false">21 Points</button></div><p id="points-note" class="option-note">Choose your target score and set the pace.</p></section>
+            <section class="match-setting" aria-labelledby="difficulty-title"><h3 id="difficulty-title">Difficulty</h3><div class="match-choices" role="group" aria-labelledby="difficulty-title" aria-describedby="ai-level-note"><button type="button" data-ai-level="easy" aria-pressed="false">Casual</button><button type="button" data-ai-level="normal" class="selected" aria-pressed="true">Standard</button><button type="button" data-ai-level="hard" aria-pressed="false">Expert</button></div><p id="ai-level-note" class="option-note">Standard: fast reactions and reliable smash defense.</p></section>
+            <section class="match-setting" aria-labelledby="playstyle-title"><h3 id="playstyle-title">Play Style</h3><div class="match-choices" role="group" aria-labelledby="playstyle-title" aria-describedby="ai-style-note"><button type="button" data-ai-style="balanced" class="selected" aria-pressed="true">Balanced</button><button type="button" data-ai-style="attack" aria-pressed="false">Attack</button><button type="button" data-ai-style="defense" aria-pressed="false">Defense</button><button type="button" data-ai-style="rally" aria-pressed="false">Rally</button></div><p id="ai-style-note" class="option-note">Mixes placement and attack from a central position.</p></section>
+          </div>
+          <div id="drill-options" class="drill-options hidden">
+            <span>Drill</span><div role="group" aria-label="Training drill"><button data-training="jump" class="selected" aria-pressed="true">Jump smash</button><button data-training="net" aria-pressed="false">Net Intercept</button><button data-training="defense" aria-pressed="false">Smash Defense</button></div>
+            <span>Pace</span><div role="group" aria-label="Training pace"><button data-training-speed="slow" aria-pressed="false">Slow</button><button data-training-speed="normal" class="selected" aria-pressed="true">Standard</button><button data-training-speed="fast" aria-pressed="false">Fast</button></div>
+            <span>Session length</span><div role="group" aria-label="Training length"><button data-training-limit="20" class="selected" aria-pressed="true">20 feeds</button><button data-training-limit="0" aria-pressed="false">Unlimited</button></div>
+          </div>
+          </div>
+          <footer class="panel-actions"><div class="setup-summary"><strong id="setup-summary" aria-live="polite">Feed Practice · Unlimited</strong></div><button class="primary" id="start">Start Practice <span>↗</span></button></footer>
+        </div>
+        <div class="panel dialog-panel hidden" id="paused" aria-labelledby="pause-title">
+          <header class="panel-header"><h2 id="pause-title">Take a breather</h2></header>
+          <div class="panel-content"><p class="pause-note">Take a moment. Pick up where you left off.</p><div class="pause-options"><button class="secondary" id="settings-paused" data-open-settings type="button">Settings</button><button class="secondary" data-open-personalization type="button">Personalize</button></div></div>
+          <footer class="panel-actions"><button class="primary" id="resume">Resume game <span>↗</span></button><button class="secondary" id="pause-menu">Back to home</button></footer>
+        </div>
+        <div class="panel help-panel hidden" id="help"><header class="panel-header"><h2>How to Play</h2></header><div class="panel-content"><div class="help-keys"><p><b>WASD / Arrow keys</b><span>Move in four directions · Space to jump</span></p><p><b>Left click / Shift + Left click / Right click</b><span>Clear / drop / attack. Against a smash: lift / block / low drive.</span></p><p><b>Your turn to serve</b><span>Left click: long serve. Right click: short serve. Stop moving and serve diagonally.</span></p><p><b>Touch: move and hit with two thumbs</b><span>Left joystick: move. Choose Clear, Drop or Attack, then tap the large button to hit. Drag on it left or right to aim; release to swing.</span></p><p><b>Touch: Jump and Power</b><span>Tap Jump, then hit near the apex. Power opens optional overrides; Auto uses your saved defaults. Release the joystick to serve.</span></p><p><b>Backhand shots</b><span>Left-side shots use a backhand. Controls stay the same; backhand smashes need precise timing.</span></p><p><b>Move the mouse left or right</b><span>Move the mouse to aim. Press 1 / 2 / 3 for power.</span></p></div><div class="cue-guide"><span><i class="cue-wait"></i>Dashed ring · Get in position</span><span><i class="cue-ready"></i>Solid ring · Ready to hit</span><span><i class="cue-perfect"></i>Double ring · Perfect timing</span></div><p>Lift to recover, block to draw the opponent in, drive to counterattack.<br>Lifts use clear power; blocks use drop power; drives use smash power.</p></div><footer class="panel-actions"><button class="primary" id="help-close">Done & Back <span>↗</span></button></footer></div>
+        <div class="panel dialog-panel hidden" id="results" aria-labelledby="result-title">
+          <header class="panel-header"><span class="panel-kicker" id="result-kicker">NICE SESSION</span><h2 id="result-title">A good session on court.</h2></header>
+          <div class="panel-content"><div class="result-score" id="final-score">0</div><p id="result-details"></p><div id="result-training" class="hidden"><div id="training-errors" class="training-errors" aria-label="Main reason for each unsuccessful attempt"></div><p id="training-advice"></p></div></div>
+          <footer class="panel-actions"><button class="primary" id="restart">Play Again <span>↗</span></button><button class="secondary" id="result-menu">Back to menu</button></footer>
+        </div>
+        <div class="panel navigation-panel settings-panel hidden" id="settings" aria-labelledby="settings-title">
+          <header class="panel-header"><div><span class="panel-kicker">MAKE IT YOURS</span><h2 id="settings-title">Settings</h2></div><span id="settings-save-status" class="settings-saved" role="status" aria-live="polite">Auto-save</span></header>
+          <div class="panel-content settings-content">
+          <section class="settings-section language-section" aria-labelledby="language-settings-title"><div class="settings-section-heading"><h3 id="language-settings-title">Language</h3></div><div class="language-choices" role="group" aria-labelledby="language-settings-title"><button type="button" data-language="en" lang="en" aria-pressed="true" class="selected">English</button><button type="button" data-language="zh-CN" lang="zh-CN" aria-pressed="false">简体中文</button></div><p class="option-note">Choose your language. Changes apply immediately.</p></section>
+          <section class="settings-section guidance-section" aria-labelledby="guidance-settings-title"><div class="settings-section-heading"><h3 id="guidance-settings-title">Court Guidance</h3></div><div class="guidance-choices" role="group" aria-label="Court guidance level"><button type="button" data-guidance="compact" aria-pressed="true">Compact</button><button type="button" data-guidance="full" aria-pressed="false">Full</button></div><p class="option-note">Compact keeps court cues. Full adds shot and control tips.</p></section>
+          <section class="settings-section" aria-labelledby="audio-settings-title"><div class="settings-section-heading"><div><h3 id="audio-settings-title">Sound</h3></div><button id="settings-sound" class="sound-switch" type="button" aria-pressed="true">On</button></div><div class="volume-label"><label for="volume">Volume</label><output id="volume-value" for="volume">100%</output></div><input id="volume" type="range" min="0" max="100" step="1" value="100"><div class="volume-scale"><span>Muted</span><button id="volume-preview" type="button">♪ Preview hit sound</button><span>100%</span></div><div class="settings-section-actions"><button id="reset-audio" class="reset-setting" type="button">↺ Reset defaults</button></div></section>
+          <section class="settings-section" aria-labelledby="power-settings-title"><div class="settings-section-heading"><div><h3 id="power-settings-title">Default shot power</h3></div></div><div class="power-settings">
+          <div class="power-setting"><span>Clear</span><div role="group" aria-label="Default clear power"><button data-default-shot="clear" data-default-power="1" aria-pressed="false">Light</button><button data-default-shot="clear" data-default-power="2" aria-pressed="false">Medium</button><button data-default-shot="clear" data-default-power="3" aria-pressed="true">Strong</button></div></div>
+          <div class="power-setting"><span>Drop</span><div role="group" aria-label="Default drop power"><button data-default-shot="drop" data-default-power="1" aria-pressed="true">Light</button><button data-default-shot="drop" data-default-power="2" aria-pressed="false">Medium</button><button data-default-shot="drop" data-default-power="3" aria-pressed="false">Strong</button></div></div>
+          <div class="power-setting"><span>Smash</span><div role="group" aria-label="Default power for standing and jump smashes"><button data-default-shot="smash" data-default-power="1" aria-pressed="false">Light</button><button data-default-shot="smash" data-default-power="2" aria-pressed="true">Medium</button><button data-default-shot="smash" data-default-power="3" aria-pressed="false">Strong</button></div></div>
+          </div><div class="settings-section-actions"><button id="reset-power" class="reset-setting" type="button">↺ Reset defaults</button></div></section>
+          <button class="appearance-entry" data-open-personalization type="button">Personalize <span aria-hidden="true">↗</span></button>
+          </div><footer class="panel-actions"><button class="primary" id="settings-close" type="button">Done & Back <span>↗</span></button></footer>
+        </div>
+        <div class="panel navigation-panel hidden" id="personalization" aria-labelledby="personalization-title">
+          <header class="panel-header"><h2 id="personalization-title">Personalize</h2><span id="appearance-save-status" class="settings-saved" role="status" aria-live="polite">Auto-save</span></header>
+          <div class="panel-content appearance-content">
+            <section class="court-preview-section" aria-label="Current court preview"><canvas id="appearance-preview" width="1200" height="720" aria-label="Live preview of the selected court"></canvas><div class="preview-caption"><h3>Court Style</h3><strong id="current-court-name">Classic Green</strong></div></section>
+            <div id="court-choices" class="court-choices" role="group" aria-label="Choose a court style"></div>
+            <section class="marker-colors" aria-labelledby="marker-colors-title">
+              <div class="marker-colors-heading"><h3 id="marker-colors-title">Marker Colors</h3><button id="marker-colors-reset" type="button">Reset marker colors</button></div>
+              <div class="marker-color-fields">
+                <div class="color-field"><div class="color-field-heading"><span>Landing point</span><output id="landingColor-value">Auto</output></div><div id="landingColor-choices" class="color-options" data-color-field="landingColor" role="group" aria-label="Landing point"></div></div>
+                <div class="color-field"><div class="color-field-heading"><span>Shot aim</span><output id="aimColor-value">Auto</output></div><div id="aimColor-choices" class="color-options" data-color-field="aimColor" role="group" aria-label="Shot aim"></div></div>
+              </div>
+            </section>
+            <section class="jersey-colors" aria-labelledby="jersey-colors-title">
+              <div class="marker-colors-heading"><h3 id="jersey-colors-title">Jersey Colors</h3><button id="jersey-colors-reset" type="button">Reset colors</button></div>
+              <div class="jersey-role" role="group" aria-label="Choose an athlete to customize their jersey"><button data-jersey-role="player" aria-pressed="true" type="button">Player</button><button data-jersey-role="opponent" aria-pressed="false" type="button">CPU</button></div>
+              <div class="jersey-editor">
+                <canvas id="jersey-preview" width="600" height="320" aria-label="Player jersey front and back preview"></canvas>
+                <div><div class="marker-color-fields jersey-color-fields">
+                  <div class="color-field"><div class="color-field-heading"><span>Main color</span><output id="jerseyColor-value">Default</output></div><div id="jerseyColor-choices" class="color-options" data-color-field="jerseyColor" role="group" aria-label="Main color"></div></div>
+                  <div class="color-field"><div class="color-field-heading"><span>Stripe color</span><output id="jerseyStripe-value">Auto</output></div><div id="jerseyStripe-choices" class="color-options" data-color-field="jerseyStripe" role="group" aria-label="Stripe color"></div></div>
+                </div><p class="jersey-note">Choose the main and stripe colors separately. Trim stays unchanged; numbers darken on light jerseys.</p></div>
+              </div>
+            </section>
+            <section class="jersey-colors racket-customization" aria-labelledby="racket-title">
+              <div class="marker-colors-heading"><h3 id="racket-title">Racket Style</h3><button id="racket-reset" type="button">Reset defaults</button></div>
+              <div class="jersey-role" role="group" aria-label="Choose an athlete to customize their racket"><button data-racket-role="player" aria-pressed="true" type="button">Player</button><button data-racket-role="opponent" aria-pressed="false" type="button">CPU</button></div>
+              <div class="racket-editor">
+                <canvas id="racket-preview" width="600" height="420" aria-label="Player racket close-up preview"></canvas>
+                <div>
+                  <span class="equipment-label">Shape</span><div class="equipment-choice" role="group" aria-label="Racket shape"><button data-racket-style="classic" aria-pressed="true" type="button">Classic Oval</button><button data-racket-style="square" aria-pressed="false" type="button">Isometric</button><button data-racket-style="slim" aria-pressed="false" type="button">Slim Oval</button></div>
+                  <span class="equipment-label">Head size</span><div class="equipment-choice" role="group" aria-label="Head size"><button data-racket-size="original" aria-pressed="false" type="button">Original</button><button data-racket-size="large" aria-pressed="true" type="button">Large</button><button data-racket-size="extra" aria-pressed="false" type="button">Extra Large</button></div>
+                  <div class="marker-color-fields jersey-color-fields">
+                    <div class="color-field"><div class="color-field-heading"><span>Frame color</span><output id="racketColor-value">Default</output></div><div id="racketColor-choices" class="color-options" data-color-field="racketColor" role="group" aria-label="Frame color"></div></div>
+                    <div class="color-field"><div class="color-field-heading"><span>Grip color</span><output id="racketGrip-value">Default</output></div><div id="racketGrip-choices" class="color-options" data-color-field="racketGrip" role="group" aria-label="Grip color"></div></div>
+                  </div><p class="jersey-note">Strings and trim match automatically. Size is cosmetic only.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+          <footer class="panel-actions"><button id="personalization-close" class="primary" type="button">Done & Back <span>↗</span></button></footer>
+        </div>
+      </div>
+      <div class="touch-controls" id="touch-controls" aria-label="Touch controls">
+        <div class="touch-movement"><span class="touch-caption">MOVE</span><div id="touch-stick" class="touch-stick" role="group" aria-label="Movement joystick. Drag from the center in any direction."><span class="stick-guides" aria-hidden="true"></span><span id="touch-stick-knob" class="touch-stick-knob" aria-hidden="true"></span></div></div>
+        <div class="touch-shot-panel">
+          <div class="touch-shot-choices" role="group" aria-label="Choose a shot, then tap the large hit button"><button type="button" id="touch-clear" aria-pressed="true">Clear</button><button type="button" id="touch-drop" aria-pressed="false">Drop</button><button type="button" id="touch-smash" aria-pressed="false">Attack</button></div>
+          <div class="touch-actions"><button type="button" id="touch-hit" aria-label="Clear. Tap and release to hit; drag left or right before release to aim.">Clear</button><button type="button" id="touch-jump">Jump</button></div>
+          <div class="touch-aim-readout"><span>Aim: <output id="touch-aim-value">Center</output></span><button type="button" id="touch-power-toggle" aria-expanded="false" aria-controls="touch-power-options">Power · Auto</button></div>
+          <div id="touch-aim-track" class="touch-aim-track" aria-hidden="true"><span></span></div>
+          <span id="touch-instruction" class="touch-instruction">Tap to hit · Drag to aim</span>
+          <div id="touch-power-options" class="touch-power-options" hidden><span class="touch-caption">THIS SHOT</span><div class="touch-power" role="group" aria-label="Power for this shot"><button type="button" data-power="1" aria-pressed="false">Light</button><button type="button" data-power="2" aria-pressed="false">Medium</button><button type="button" data-power="3" aria-pressed="false">Strong</button></div><button type="button" id="touch-power-auto">Use defaults</button></div>
+        </div>
+      </div>
+    </section>
+    <section class="bottom"><div class="control-item"><span class="control-number">01</span><p><b>Footwork & contact</b><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move · Follow the contact ring for low shots</span></p></div><div class="control-item"><span class="control-number">02</span><p><b>Shot power</b><span>1 / 2 / 3 or scroll to adjust power. Defaults in Settings.</span></p></div><div class="control-item"><span class="control-number">03</span><p><b>Jump smash at the apex</b><span><kbd class="space-key">SPACE</kbd> Jump · Right click on the gold cue</span></p></div><div class="hint">Relax your shoulders.<br>Make the next shot count.<span>↗</span></div></section>
+    <footer><span>A LITTLE COURT, A LITTLE JOY.</span><span>P to pause · M to toggle sound</span></footer>
+  </main>
+  <script src="i18n.js"></script>
+  <script src="core.js"></script>
+  <script src="target-challenge.js"></script>
+  <script src="sounds.js"></script>
+  <script src="appearance.js"></script>
+  <script src="guidance.js"></script>
+  <script src="touch-input.js"></script>
+  <script src="tutorial.js"></script>
+  <script src="assets/characters/pixel-athlete-v2/game-renderer.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

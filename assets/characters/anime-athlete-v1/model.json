@@ -1,0 +1,79 @@
+{
+  "version": "1.1.0",
+  "format": "glTF 2.0 binary",
+  "units": "metres",
+  "forward": "+Z",
+  "handedness": "right",
+  "file": "athlete.glb",
+  "bytes": 1508716,
+  "joints": [
+    "Hips",
+    "Spine",
+    "Chest",
+    "Neck",
+    "Head",
+    "RightShoulder",
+    "RightUpperArm",
+    "RightForeArm",
+    "RightHand",
+    "RightUpperLeg",
+    "RightLowerLeg",
+    "RightUpperLegTwist",
+    "RightFoot",
+    "RightLowerLegTwist",
+    "RightHeel",
+    "RightToe",
+    "RightToeTip",
+    "LeftShoulder",
+    "LeftUpperArm",
+    "LeftForeArm",
+    "LeftHand",
+    "LeftUpperLeg",
+    "LeftLowerLeg",
+    "LeftUpperLegTwist",
+    "LeftFoot",
+    "LeftLowerLegTwist",
+    "LeftHeel",
+    "LeftToe",
+    "LeftToeTip"
+  ],
+  "animations": [
+    {
+      "name": "Idle",
+      "seconds": 2.4
+    },
+    {
+      "name": "Run",
+      "seconds": 0.85
+    },
+    {
+      "name": "Sidestep",
+      "seconds": 1.8
+    },
+    {
+      "name": "Jump",
+      "seconds": 1.55
+    },
+    {
+      "name": "Forehand",
+      "seconds": 1.45
+    },
+    {
+      "name": "Backhand",
+      "seconds": 1.55
+    },
+    {
+      "name": "Smash",
+      "seconds": 1.65
+    }
+  ],
+  "racketAttachment": "RightHand",
+  "contactLocator": "RacketContact",
+  "embeddedTextures": 0,
+  "gameplayIntegrated": true,
+  "gameplayRenderer": "game-renderer.js",
+  "source": "../../../scripts/lib/athlete-model.mjs",
+  "vertices": 16183,
+  "triangles": 22896,
+  "meshCount": 20
+}
