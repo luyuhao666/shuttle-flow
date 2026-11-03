@@ -1,10 +1,16 @@
 # Shuttle Flow 项目交接（原羽间 / Shuttle Club）
 
-更新日期：2026-11-02（本段对话收尾：双语、Windows 分享、GitHub 协作及清理均已完成；接手入口见第 46 节）。工作目录：`D:\codex_try\Shuttle Flow`。本文供接手开发的下一段对话快速掌握项目现状；玩家操作说明另见 `README.md`。**本文件记录的是当前代码和已经达成的用户偏好，后续需求仍以用户在新对话中的最新要求为准。**
+更新日期：2026-11-03（1.1.0 联机版本 GitHub 同步见第 49 节；实现见第 47 节，文件夹清理见第 48 节，第 46 节为此前仓库交接）。工作目录：`D:\codex_try\Shuttle Flow`。本文供接手开发的下一段对话快速掌握项目现状；玩家操作说明另见 `README.md`。**本文件记录的是当前代码和已经达成的用户偏好，后续需求仍以用户在新对话中的最新要求为准。**
 
-## 新对话接手速览（2026-11-02）
+## 新对话接手速览（2026-11-03）
 
-**先读本节和第 46 节，再按需读第 45 节（双语）、第 43 节（手机横屏）及相关源码。** 后面保留历史阶段记录；其中“当前/本轮”、旧测试数量、旧角色、旧高度门槛、原生调色盘及旧打包状态只在各节原日期成立，不能覆盖本节与第 46 节。后续开发重心是电脑操作，具体工作等待用户在新对话中的新需求。
+**先读本节最新条目及第 47～49 节，再按需读第 46 节（仓库协作）、第 45 节（双语）和相关源码。** GitHub 同步以第 49 节为准；旧分享包、截图和缓存以第 48 节为准；玩法与联机实现以第 47 节为准。后续仍以电脑操作为主，保留原有球场、镜头、身高、手感及点杀/跳杀规则。
+
+- **最新：1.1.0 联机版本 GitHub 同步（11 月 3 日）**：用户明确授权上传当前联机版；本次提交包含全部联机源码、桌面桥接/内置房间服务、ws 依赖锁文件、测试、构建与文档更新。同步前已核对 GitHub main 与本地基线均为 df92b91，没有队友新增提交；采用普通快进更新 main，最终 SHA 以 git log / 远端接口核对为准。11 月 3 日重新运行 194/194 测试和语法检查，日志在本机 artifacts/github-upload-2026-11-03/。本轮上传源码，试玩 ZIP、开发依赖和本机测试/审查产物仍按 .gitignore 留在本机。详见第 49 节。
+
+- **最新：文件夹清理（11 月 2 日）**：用户审查后明确授权“不影响当前游戏功能直接删除”。已删除 1,214 个旧文件及 7 组空缓存/预览/动作帧目录，逻辑文件大小合计 1,383,922,642 字节（约 1.29 GiB）。包括三个旧 Windows ZIP、两个 Mac Electron 下载缓存、已解压浏览器的 ZIP、旧源码导出 ZIP、旧预览配置、动作中间帧和 421 个旧截图/GIF。保留最新 LAN ZIP、整个 Windows 文件夹版、所有源码/依赖/素材、已解压浏览器、近期联机结果和历史 ASAR / before-source 基线。清理前后 3,359 个保留文件 SHA-256 一致；执行记录见 artifacts/cleanup-audit-2026-11-02/。旧段落的“旧 ZIP 均保留、源码审计 ZIP 保留”现已过时；本轮没有改游戏代码、重打包或推送 GitHub。
+
+- **最新：局域网 / Radmin VPN 双人对战（1.1.0，11 月 2 日）**：用户明确授权，已完成 Windows 游戏内创建房间、IP:端口加入、双方准备、真实双人比赛、7/15/21 分、同步暂停、再来一局与断线处理。默认端口 3210；双方都从己方底线看球场。主机进程统一计算，复用原规则，并有短时历史触球校验与画面平滑。已通过 **194/194 测试**和语法检查；源码与发布版各两个独立 Electron 实例经本机 Radmin IP `26.124.46.217` 完整比赛验证（同机，并非朋友两台电脑远程验收），80ms 往返延迟测试通过。最新分享包为 `dist/Shuttle-Flow-Windows-x64-2026-11-02-lan.zip`，175,388,331 字节，75 文件逐个 SHA-256 比对通过；74 个源码/素材/ws 运行库文件与 ASAR 一致。分支 `codex/lan-multiplayer`，本轮未提交或推送 GitHub。详见第 47 节。
 
 - **最新：GitHub 协作与仓库清理（11 月 2 日）**：仓库 https://github.com/luyuhao666/shuttle-flow 已上传，默认分支 main；清理提交 **72e0e32426308989e171751fe914e195249a9952** 已推送，并通过 GitHub 接口核对与本地一致。初始提交 6c6f88a 含 118 个文件，清理后跟踪 116 个文件；后续文档提交以 git log 为准。用户从成员页确认 chinasocialism 已列为协作者、无待接受提示，按用户确认视为已加入；当前连接的成员权限接口返回 403，未以接口独立验证邀请。仓库当前为 **Public**，已告知用户，未改成 Private。已删除 Python 缓存与停用 review bundle，补 __pycache__/、*.py[cod] 忽略规则；备份在 artifacts/repository-cleanup-2026-11-02。178/178 测试与语法检查通过。此前审计临时 checkout 已清除，审计源码 ZIP 与报告保留，避免 Node 递归重复发现测试。
 
@@ -319,7 +325,7 @@
 
 当前停点：用户准备开启新对话。双语切换、Windows 试玩包、GitHub 上传/队友加入与缓存/停用文件清理均已完成；新功能等待用户下一条明确需求，后续重心在电脑操作。人物保留原身高，通过弓腰、屈膝/低马步表现候球，不要把低姿态理解成整体变矮。
 
-> 请先阅读 `D:\codex_try\Shuttle Flow\HANDOFF.md` 的“新对话接手速览”和第 46 节，按需读第 45 节及 README。继续现有 Shuttle Flow，后续以电脑操作为主，保留球场/镜头、原身高、弓腰/低马步、换向惯性与原点杀/跳杀规则。已完成默认英语、设置切简体中文，八课定格教程、手机横屏、三档人机、四种打法和个性化/落点挑战。GitHub 仓库为 luyuhao666/shuttle-flow，当前 Public；用户已从成员页确认 chinasocialism 加入。清理提交 72e0e32 已推送，之后文档提交看 git log；改动前先检查本地/远端及队友更新。11 月 2 日 178 项测试与语法通过；真实 Windows EXE 和新版手机手感验证仍有边界。最新试玩包是 dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip，11 月 2 日清理后未重封装。联机、微信、闯关/复盘等仍未实施，按我的下一条需求继续。
+> 请先阅读 `D:\codex_try\Shuttle Flow\HANDOFF.md` 顶部最新联机条目和第 47 节，按需看第 46 节仓库协作及 README。继续现有 Shuttle Flow，电脑操作优先，保留球场、镜头、身高、换向惯性与原点杀/跳杀。1.1.0 已实现 LAN / Radmin VPN 双人对战：Windows 内建房、IP:端口加入、双方准备、完整比赛、同步暂停、再来一局和断线处理。194 测试及语法通过，源码和发布 EXE 各两个同机实例通过本机 Radmin IP 完成比赛；仍待朋友跨电脑真实试玩。最新 ZIP 是 dist/Shuttle-Flow-Windows-x64-2026-11-02-lan.zip，旧双语包不含联机。分支 codex/lan-multiplayer，本轮未 commit / push。GitHub main 仍以远端状态为准，注意队友修改；联机已授权完成，微信/回放等仍未实施。
 
 ## 10. 最新完成：简洁动漫运动员 3D 模型原型
 
@@ -881,3 +887,63 @@
 - 原 bilingual.zip 为同功能的较早打包副本；无 bilingual 后缀的 11 月 1 日 ZIP 尚未含语言切换。10 月 9 日 Windows/Mac ZIP 更旧，Mac 仍无本次更新或真机验证。
 - 本机 Windows 文件夹版和最新 ZIP 都在 11 月 1 日同步生成。11 月 2 日只删除未用资源、Python 缓存并更新说明，游戏运行代码相同，但未重新打包；旧包仍含历史停用文件，旧逐文件一致性报告仅代表打包当时。后续只有明确需要刷新分享版时才重封装并重新校验。
 - 本机已有 dist 运行库，更新继续用 node scripts/build-desktop.mjs --reuse-runtime，避免已知有缓存/解压权限问题的完整覆盖路径。**新克隆没有 dist，不能直接使用 --reuse-runtime**；首次构建需准备完整运行库并按常规构建流程验证。不要手改 dist 内游戏代码。
+
+## 47. 局域网 / Radmin VPN 双人对战（2026-11-02，1.1.0）
+
+### 授权、范围和玩家使用
+
+- 用户已明确要求并授权实现基于局域网 / Radmin VPN 的 IP 加端口双人远程对战；第 46 节“联机未授权”是此前历史。
+- 现有五个首页入口保留。比赛模式设置里新增 LAN Match / 局域网对战，内含创建和加入房间。Windows 创建房间自动启动服务，不需要朋友安装 Node；默认 3210，可改端口并选择 7 / 15 / 21 分。
+- 双方先接入同一局域网或 Radmin 网络。主机建房，朋友输入主机 IP:端口，双方准备后开始。远程使用 Radmin 软件显示的 IP；本机发现 Radmin VPN 适配器 IP 为 26.124.46.217，后续环境变化时应重新看软件地址，不能当成固定公共服务地址。
+- 双方都在自己画面近端，键鼠和原有力度设置保留；主机选择的场地一致，各人的球衣/球拍在准备时同步。比分、发球与输赢按本地视角转换。结算后双方准备可再来一局。
+- 任一方按 P / Esc、切窗或隐藏时会同步暂停；各自解除自己请求的暂停，两方都解除才继续。暂停清空尚未完成的挥拍和移动，断线停止比赛并提示重新建房/加入。第一版无断线续局。
+- 仍需朋友两台 Windows 电脑进行真实远程试玩；本机双实例通过 VPN 适配器并不能代替跨电脑、实际防火墙和长距离抖动验证。高延迟/抖动会影响手感，不承诺任意网络与本机相同。
+
+### 实现入口
+
+- lan-core.js：独立双人比赛状态、双方本地坐标、镜像球路、统一原规则、120Hz 主机时钟、双方准备/暂停、完整计分、历史触球判定（最多 150ms）与窗口内回放。不是全局回滚；补偿只做短时历史校验，球不在高点减速。
+- network/server.mjs：内置 Node HTTP / WebSocket 房间，ws 8.22.1 为精确锁定的生产依赖；监听 0.0.0.0，最多两位玩家；随机私有令牌保留主机席位；版本、输入范围、消息大小/频率、心跳、端口冲突和断线处理。只发送比赛数据，不提供源码文件服务。
+- lan-client.js：IP/端口校验、连接超时、协议版本、30Hz 快照、操作传送、延迟显示与有限外推。game.js 中 setupLan / receiveLan / updateLan 等接入现有界面、人物、球和音效；单机分支继续沿原流程。
+- core.js 仅为 incomingPosition 增加可选 toHeight（缺省仍 25），使双人双方看到同一条实际落地轨迹；原单机规则、接触半径、点杀/跳杀、移动参数未收紧。
+- desktop/preload.cjs 仅暴露建房/关房两项 IPC；main.cjs 验证发送窗口，保留 sandbox / contextIsolation / webSecurity，Node 不暴露给页面。CSP 明确允许 ws，局域网明文连接只在本地可信游戏页面中启用；不开放远程脚本或导航。
+- 重要：电脑系统网页代理此前接管 26.x 地址，导致原生加入超时。游戏 session 单独使用 direct 模式，未更改 Windows 代理。main.cjs 的该配置需要保留。
+- Windows / Mac 构建脚本同步纳入 network 和 node_modules/ws，浏览器静态允许列表加入 lan-core.js / lan-client.js。Mac 构建流程只做兼容更新，本轮没有生成/验证新的 Mac 包。file:// 离线单机继续支持；浏览器可加入已建房间，创建房间使用桌面版。
+
+### 验证和开发环境
+
+- 修改前确认工作区干净，本地与 GitHub main 都为 df92b91；在 codex/lan-multiplayer 分支开发。此次没有 commit / push，不覆盖远端或队友修改。
+- npm.cmd test：194/194，通过；包含 16 项联机测试（真实 socket、主机席位、版本、第三人、输入校验、双向连续回球、完整比赛/再来一局、80ms RTT、原跳杀/点杀/挑球/挡网/平抽、7/15/21 分与封顶）。npm.cmd run check 通过，包括新增 check:lan。
+- scripts/verify-lan.mjs 默认使用独立 Chrome Headless Shell，真实前端和 WebSocket；只为浏览器提供桌面建房桥接替身。已验证英文/中文、五尺寸房间布局、键盘移动、六拍以上回合、完整比分、再来一局、切窗暂停、断线、退出后单机。该脚本非系统 Edge。
+- scripts/verify-lan.mjs --electron 运行两个真实源码 Electron 实例；--electron --packaged 运行两个真实发布 EXE 实例。均通过本机 Radmin 26.124.46.217 完成完整比赛（具体比分以各次报告为准），六拍以上回合、键盘、再来一局、切窗和断线均通过，无运行异常。
+- Windows 从未显示的隐藏窗口会停止 RAF；验证脚本通过调试钩子设 QA 帧泵调用原 update/draw，不修改正式游戏或服务器时钟。各实例使用独立临时 profile；截图使用 capturePage(stayHidden)。这不能描述为两台真实电脑或真人手感验收。
+- 受限 runner 中 Electron 仍启动失败；受限环境外运行原 verify:desktop 已通过源码/当时发布版的原生窗口/存档/音效/全屏等检查。联机原生测试同样在受限环境外执行，不更改系统权限、代理或防火墙。
+- 最终通用 GUI 回归：--language 六尺寸 124 中文界面状态及保存语言重载通过；--menu-design 四尺寸 109 英文状态、78 组共用配色通过。联机入口最终放在比赛设置标题旁，桌面/手机三组原比赛设置仍完整显示。原 verify:desktop 对最新源码和发布 EXE 的窗口、存档、音效、全屏等回归也已通过。
+- 报告 artifacts/lan/{source-electron,packaged-electron}-report.json；测试/语法/构建日志 artifacts/lan-*.log，截图 artifacts/lan/。浏览器与隐藏原生截图可能按同名覆盖，报告的 runtime 字段用于区分结果。
+
+### Windows 交付
+
+- 已通过 node scripts/build-desktop.mjs --reuse-runtime 更新文件夹版。最新分享包为 dist/Shuttle-Flow-Windows-x64-2026-11-02-lan.zip，175,388,331 字节（约 167.3 MiB），包含完整 75 文件；ZIP 每个文件 SHA-256 与发布目录相同。
+- ZIP SHA-256：7d3217e81c63dc24ce8bacfb994a1ee71a7432e5b7a416f004475961a3886bb3。74 个源码、素材、桌面和 ws 运行库文件与 ASAR 逐字节一致，旧停用 review bundle 和 Python 缓存不在包中。报告 artifacts/release-win-2026-11-02-lan.json、artifacts/lan/asar-checks.json。
+- 朋友需收到新版整个 ZIP，完整解压后启动 Shuttle Flow.exe。旧 11 月 1 日 bilingual-2.zip 和更早 ZIP 不含联机，均保留。游戏中已有中英文操作/错误提示，打开游戏说明.txt 增加了局域网步骤。
+- Windows 首次询问时允许游戏通过所用局域网 / VPN 网络的防火墙；本轮没有自动改防火墙规则，也没有安装或操作 Radmin 网络。
+
+## 48. 文件夹清理已执行（2026-11-02）
+
+- 用户先要求审查整个目录，随后明确授权“只要不影响到当前游戏功能，直接帮我删了吧”。只按已审查的具体清单删除，没有扩大到源码、依赖或有工具引用的历史基线。
+- 已删 1,214 文件，合计 1,383,922,642 字节（1319.81 MiB / 约 1.29 GiB）。包括三个旧 Windows ZIP（10 月 9 日、11 月 1 日普通版及 bilingual-2）、两个 Mac Electron 下载缓存、已解压的浏览器 ZIP、旧 Git 源码 source.zip、旧浏览器/角色预览配置、两组动作中间帧和 421 个旧截图/GIF。七组清空的缓存/预览/动作帧目录一并移除。
+- 保留最新 dist/Shuttle-Flow-Windows-x64-2026-11-02-lan.zip 和完整 Shuttle Flow-win32-x64 文件夹、所有源码/测试/网络模块/依赖/素材、解压后的 GUI 测试浏览器、历史 *-before.asar / *-before-source、artifacts/lan/ 和本次发布/清理报告。游戏真实存档位于项目外，未触碰。
+- 旧段落“旧 ZIP 均保留”“审计 source.zip 保留”“历史截图可查看”只代表当时。以后不要为文档历史链接恢复旧包；不要把保留的 browser-runtime 已解压目录当作已删下载 ZIP。
+- 删除前检查每个绝对路径及祖先仍在 D:\codex_try\Shuttle Flow 内、没有链接跳转、文件大小/修改时间与审查一致；使用 PowerShell Remove-Item -LiteralPath 逐文件删除，目录仅在为空时移除，无递归删除。
+- 清理前后 3,359 个保留文件 SHA-256 一致。清理后 194/194 测试、npm.cmd run check 通过；最新 ZIP SHA-256 与既有发布报告一致。没有新游戏代码变更、重新打包、GUI 重测或 GitHub 推送。随后仅更新 README/HANDOFF 记录清理结果。
+- 删除脚本统计阶段出现 PowerShell 5 Hashtable/Measure-Object 兼容错误，已经修正，并以原候选清单和删除前哈希清单独立重建执行记录、完成复核。无未处理失败或剩余候选。
+- 报告目录 artifacts/cleanup-audit-2026-11-02/：清理执行记录.md、execution-result.json、preserved-before.json、tests-after-cleanup.log、check-after-cleanup.log、validation.json。inventory.json 是清理前快照，cleanup-plan.json 状态已改为 executed_verified，不能当成待执行的新清理授权。
+
+## 49. 1.1.0 联机版 GitHub 同步（2026-11-03）
+
+- 用户明确要求把当前联机版本上传到 GitHub。目标仓库 luyuhao666/shuttle-flow，默认分支 main；本次不改仓库可见性和成员设置。
+- 同步前通过 GitHub 连接和 git fetch 独立核对，远端 main 与本地开发基线均为 df92b91e3d76c0f4c0eac5451dc99690ee5ca2fc，没有队友新增提交。联机改动原在本地 codex/lan-multiplayer 分支，先形成完整提交，再将 main 正常快进到同一提交并推送；不强制覆盖远端。具体最终提交 SHA 以 git log 和 GitHub 远端核对为准，本文随该功能提交不自填自己的 SHA。
+- 本次源码提交包含 1.1.0 联机功能、网络/桌面桥接、ws 8.22.1 精确依赖及锁文件、16 项新增联机测试、浏览器与原生双实例检查脚本、Windows/Mac 构建兼容和玩家/交接文档。清理操作只涉及本机忽略产物，其结果以第 48 节记录为准。
+- 11 月 3 日重新运行 npm.cmd test（194/194）和 npm.cmd run check，均通过；日志位于本机 artifacts/github-upload-2026-11-03/。本轮不新增 GUI 或跨电脑远程试玩结论；原生双实例与实际网络边界仍见第 47 节。
+- .gitignore 继续排除 dist、node_modules、artifacts、快捷方式、环境凭据和 Python 缓存，不把 ZIP、Electron 运行库或本机审查/测试文件塞进源码仓库。最新 Windows ZIP 仍在本机 dist/Shuttle-Flow-Windows-x64-2026-11-02-lan.zip，本轮没有创建 GitHub Release 或重新打包。
+- 新克隆源码：npm.cmd ci 后 npm.cmd run desktop。已有克隆需先保留自己的修改，再拉取 main 并 npm.cmd ci 更新 ws 依赖；不能在没有 dist 运行库的新克隆直接使用 --reuse-runtime。
+- Git 网络仍使用本次重新核对到的系统代理 127.0.0.1:7897 和单次 HTTP/1.1 配置；不永久改全局 Git 或 Windows 代理配置。凭据始终交给已有登录工具管理，不写入仓库或日志。

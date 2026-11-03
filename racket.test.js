@@ -74,6 +74,7 @@ function equipmentUi(stored = {}) {
   const functions = game.slice(game.indexOf('function renderRacketControls()'), game.indexOf('function selectCourt('));
   const reset = game.slice(game.indexOf("$('racket-reset').onclick = () => {"), game.indexOf("$('marker-colors-reset').onclick"));
   const api = runInNewContext(`${prefix}\n${functions}\n${reset}\n({settings:appearanceSettings,select:selectRacket,render:renderRacketControls,role:value=>{racketPreviewRole=value;},reset:()=>$('racket-reset').onclick()})`, {
+    lanActive: false, lanView: null,
     i18n: globalThis.ShuttleI18n.createLocalizer({ document: { querySelectorAll: () => [] } }),
     globalThis: { ShuttleAppearance: appearance }, localStorage: { getItem: key => storage.get(key) }, $, document: { querySelectorAll: key => groups[key] },
     saveSettings(key, value) { storage.set(key, JSON.stringify(value)); }, renderAppearance() { renders++; }

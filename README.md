@@ -1,10 +1,37 @@
 # Shuttle Flow
 
-从己方底线后上方看向对面的羽毛球小游戏。固定透视球场、四向移动、手动挥拍，支持普通练习、人机比赛和专项练习。
+从己方底线后上方看向对面的羽毛球小游戏。固定透视球场、四向移动、手动挥拍，支持普通练习、人机比赛、专项练习和局域网双人对战。
+
+从 GitHub 获取当前源码：
+
+```powershell
+git clone https://github.com/luyuhao666/shuttle-flow.git
+cd shuttle-flow
+npm.cmd ci
+npm.cmd run desktop
+```
+
+已经克隆过的项目先保留自己的未提交改动，再拉取最新 main，并运行 `npm.cmd ci` 更新依赖。Windows 游戏内可以直接创建联机房间；Git 仓库存放源码和素材，开发依赖、打包目录与本机测试记录按忽略规则保存。
+
+## 局域网 / Radmin VPN 双人对战（1.1.0）
+
+双方使用同一份新版 Windows 游戏，打开 **Match Mode → LAN Match**（比赛模式 → 局域网对战）。
+
+1. 普通局域网：两台电脑连接同一网络。远程对战：双方先安装并加入同一个 Radmin VPN 网络。
+2. 主机点击 **Create room / 创建房间**，默认端口 `3210`，可选择 7 / 15 / 21 分。游戏会自动启动内置服务并显示本机地址。
+3. 朋友在 **Join room / 加入房间** 输入主机的 `IP:端口`，例如 `26.12.34.56:3210`。Radmin 对战使用 Radmin VPN 显示的 IP；同一 Wi-Fi 使用对应的本机局域网 IP。
+4. 双方点击 **Ready / 准备**，比赛开始。双方都从自己的底线后看球场，键鼠与原单机操作相同。
+5. 任一方按 P / Esc 或切换窗口会同步暂停；暂停的一方需自行点击继续。结算后双方准备可再来一局。断线后需要重新创建 / 加入房间。
+
+Windows 询问时，允许游戏通过当前局域网或 VPN 网络的防火墙；无需关闭防火墙。连接失败时核对网络、IP、端口、游戏版本及主机防火墙放行；端口被占用可换一个。电脑需保持开机并运行游戏。无需额外安装 Node.js、购买公网 IP 或配置路由器端口映射。游戏自己的网络会话直连，避免系统网页代理接管 Radmin 地址，不更改 Windows 代理配置。
+
+联机限定两人一对一。主机统一计算球路、触球与比分，保留原移动惯性、起跳、点杀、跳杀及力度规则；短时历史校验与画面平滑用于应对网络延迟。高延迟和抖动仍会影响手感。原有离线练习、人机、教程、存档和双语切换保留。
+
+源码开发仍可 `npm.cmd run desktop`。`npm.cmd run start:lan` 仍是静态网页服务；Windows 游戏内建房不需要启动它。浏览器可加入已建好的房间，创建房间请使用桌面版。验证入口为 `npm.cmd test`、`npm.cmd run check`、`npm.cmd run verify:lan`；原生双实例检查为 `node scripts/verify-lan.mjs --electron`，发布目录检查再加 `--packaged`。检查使用独立临时存档，原生隐藏窗口通过 QA 帧泵调用原生产更新与绘制函数；不改变正式游戏行为。
 
 项目目录：`D:\codex_try\Shuttle Flow`。源码、素材、工具、开发依赖和 Windows/Mac 分享包均在此目录中；运行下文的 npm 命令前先执行 `cd "D:\codex_try\Shuttle Flow"`。
 
-**2026-11-01 双语版更新**：当前 Windows 试玩包为 `dist/Shuttle-Flow-Windows-x64-2026-11-01-bilingual-2.zip`（约 168 MiB），按最新源码再次打包，含英语/简体中文切换及当前全部功能。原 bilingual.zip 保留；同日无 bilingual 后缀 ZIP 为加语言前快照。后文 10 月开发记录中的旧 ZIP 亦为历史包，Mac 包仍未刷新。
+**分享包与清理状态（2026-11-02）**：当前保留 `dist/Shuttle-Flow-Windows-x64-2026-11-02-lan.zip` 和完整 Windows 发布文件夹。11 月 1 日及更早 Windows ZIP、Mac 运行库下载缓存、旧测试截图和临时预览缓存已按用户授权清理；当前游戏代码和发布包未更改。Mac 分享包未在本轮刷新或真机验证。详细清理记录见 `artifacts/cleanup-audit-2026-11-02/`。
 
 ## 启动
 

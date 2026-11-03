@@ -943,3 +943,32 @@ html[lang=zh-CN] .touch-instruction{letter-spacing:0}
   #phone-ready .panel-content p{margin:4px 0;line-height:1.5}
   #phone-ready .phone-ready-note{padding:8px}
 }
+/* The friend match lives inside Match Mode and follows the existing daylight UI. */
+.menu-view #mode-setup .panel-header{display:flex;align-items:center;gap:12px}
+.menu-view #mode-setup .lan-entry{display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0;width:auto;min-height:44px;padding:0 14px;margin:0 0 0 auto;border:1px solid #cbdcba;border-radius:12px;background:#edf6df;color:#213b2b;cursor:pointer}
+.lan-entry b{font-size:15px}.lan-entry>span:last-child{font-size:22px}
+:is(.menu-view,.focus-game) #lan-panel{display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:min(820px,calc(100% - 32px));height:min(680px,calc(100% - 32px));max-width:820px;padding:0;text-align:left;overflow:hidden}
+#lan-panel .panel-header{display:flex;align-items:center;gap:24px}#lan-panel .panel-header h2{margin:0}
+#lan-panel .panel-content{overflow:auto;min-height:0}#lan-panel h3{font-size:19px;margin:0 0 18px}
+#lan-panel p{line-height:1.55}#lan-panel .lan-status{padding:12px 16px;border-radius:10px;background:#edf4e6;color:#36562b;margin:16px 0}
+#lan-panel .lan-status.error{background:#fff0e9;color:#8a3424}
+.lan-connect{display:grid;grid-template-columns:1fr 1fr;gap:28px}.lan-connect section+section{border-left:1px solid #d8e5cd;padding-left:28px}
+#lan-panel label{display:block;font-weight:600;font-size:14px;margin:14px 0 7px}
+#lan-panel input,#lan-panel select{box-sizing:border-box;width:100%;font:inherit;min-height:46px;padding:9px 12px;border:1px solid #b9cbb0;border-radius:8px;color:#213b2b;background:#fff}
+#lan-panel input:focus-visible,#lan-panel select:focus-visible{outline:3px solid #7d9c47;outline-offset:2px}
+.lan-connect .primary{width:100%;margin:20px 0 0}#lan-panel .option-note{font-size:14px;color:#52634b;margin:12px 0}
+#lan-panel button:disabled{opacity:.55;cursor:default}
+.lan-players{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.lan-players span{background:#edf4e6;padding:16px;border-radius:10px}
+#lan-addresses{font:600 19px/1.7 "Consolas",monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#254826;user-select:text;background:#edf4e6;padding:12px 16px;border-radius:10px}
+@media(max-width:620px){.lan-connect{grid-template-columns:1fr;gap:20px}.lan-connect section+section{border-left:0;border-top:1px solid #d8e5cd;padding:20px 0 0}.lan-players{grid-template-columns:1fr}}
+@media(max-width:620px){
+  .menu-view #mode-setup .panel-header{gap:8px}
+  .menu-view #mode-setup .panel-header>div{flex:1;min-width:0}
+  .menu-view #mode-setup .panel-header .panel-back{width:40px;min-width:40px;padding:0;font-size:0}
+  .menu-view #mode-setup .panel-header .panel-back::before{content:"←";font-size:18px}
+  .menu-view #mode-setup #setup-title{font-size:20px}
+  .menu-view #mode-setup .lan-entry{padding:0 8px;gap:0;margin-left:auto}
+  .menu-view #mode-setup .lan-entry b{font-size:13px}
+  .menu-view #mode-setup .lan-entry>span{display:none}
+}
+@media(max-height:500px){:is(.menu-view,.focus-game) #lan-panel{height:calc(100% - 16px)}#lan-panel .panel-header{padding:12px 24px}#lan-panel .panel-header h2{font-size:24px}}

@@ -24,6 +24,8 @@ try {
   }
   await cp(join(root, 'assets'), join(game, 'assets'), { recursive: true });
   await cp(join(root, 'desktop'), join(game, 'desktop'), { recursive: true, filter: source => !source.endsWith('.test.cjs') });
+  await cp(join(root, 'network'), join(game, 'network'), { recursive: true, filter: source => !source.endsWith('.test.mjs') });
+  await cp(join(root, 'node_modules', 'ws'), join(game, 'node_modules', 'ws'), { recursive: true });
   await writeFile(join(game, 'package.json'), JSON.stringify({ name: metadata.name, productName: metadata.productName, version: metadata.version, main: metadata.main, type: 'module' }, null, 2));
   const asar = join(staging, 'app.asar'); await createPackage(game, asar);
   // Both platforms receive identical current gameplay, offline audio and embedded GLB.

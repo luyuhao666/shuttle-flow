@@ -355,7 +355,7 @@ try {
     const audit=async label=>{
       const result=await evaluate(`(()=>{
         const leftovers=[],walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
-        const untranslated=text=>/[A-Za-z]{2,}/.test(text.replace(/Shuttle Flow|English|WASD|Shift|SPACE|Space/g,''));
+        const untranslated=text=>/[A-Za-z]{2,}/.test(text.replace(/Shuttle Flow|Radmin VPN|Windows|IPv4|VPN|IP|English|WASD|Shift|SPACE|Space/g,''));
         while(walker.nextNode()) {const n=walker.currentNode;if(n.parentElement.closest('script,style'))continue;if(untranslated(n.nodeValue))leftovers.push({id:n.parentElement.id||n.parentElement.tagName,text:n.nodeValue.trim()});}
         for(const e of document.querySelectorAll('[title],[aria-label],[aria-valuetext]'))for(const key of ['title','aria-label','aria-valuetext'])if(untranslated(e.getAttribute(key)||''))leftovers.push({id:e.id||e.tagName,attribute:key,text:e.getAttribute(key)});
         const overflow=[...document.querySelectorAll('.panel:not(.hidden),.panel:not(.hidden) .panel-content')].filter(e=>e.getBoundingClientRect().width&&e.scrollWidth>e.clientWidth+2).map(e=>e.id||e.className);
@@ -405,7 +405,11 @@ try {
     assert.equal(await evaluate(`document.documentElement.lang`),'en');
     // Reload through the real entrypoint to verify saved Chinese before any UI interaction.
     await click('settings-menu');await choose('zh-CN');
-    await send('Page.reload');await sleep(500);
+    await send('Page.reload');
+    for(let attempt=0;attempt<100;attempt++){
+      if(await evaluate('document.documentElement?.lang==="zh-CN"&&document.getElementById("settings-title")?.textContent==="游戏设置"'))break;
+      await sleep(100);
+    }
     assert.equal(await evaluate('document.documentElement.lang'),'zh-CN');assert.equal(await evaluate(`document.getElementById('settings-title').textContent`),'游戏设置');
     await shot('language-saved-reload.png');assert.deepEqual(errors,[]);
     await writeFile(join(artifacts,'language-browser-checks.json'),JSON.stringify({browser:browserBinary,report,errors,savedLanguageReload:true,actualPhoneTested:false},null,2));

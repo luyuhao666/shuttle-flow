@@ -5,6 +5,51 @@
 const storageKey = 'shuttle-flow-language';
 const dictionary = Object.freeze(Object.fromEntries(`
 Language|语言
+LAN Match|局域网对战
+Play against a friend · LAN / Radmin VPN|与朋友对战 · 局域网 / Radmin VPN
+Join the same LAN or Radmin VPN network, then create or join a room.|先加入同一个局域网或 Radmin VPN 网络，再创建或加入房间。
+Create a room or enter your friend's address.|创建房间，或输入朋友的地址。
+Create room|创建房间
+Join room|加入房间
+Port|端口
+Host IP and port|主机 IP 和端口
+Use the host's Radmin VPN IP, followed by a colon and the port.|输入主机的 Radmin VPN IP，后面加英文冒号和端口。
+Open the Windows desktop game to create a room.|请打开 Windows 桌面版游戏创建房间。
+Share your address|分享你的地址
+Use the IP shown in Radmin VPN. Other addresses also work on a LAN.|远程对战请使用 Radmin VPN 显示的 IP。同一局域网也可使用其他地址。
+Both players must be ready to start.|双方准备后开始比赛。
+When Windows asks, allow this game through the firewall on your LAN or VPN network.|Windows 询问时，请允许游戏通过你正在使用的局域网或 VPN 网络的防火墙。
+Back to match setup|返回比赛设置
+Leave room|离开房间
+You · Not ready|你 · 未准备
+You · Ready|你 · 已准备
+Friend · Waiting to join|朋友 · 等待加入
+Friend · Not ready|朋友 · 未准备
+Friend · Ready|朋友 · 已准备
+Ready|准备
+Cancel ready|取消准备
+Connecting…|正在连接…
+Connected. Get ready when both players have joined.|连接成功，双方加入后请点击准备。
+Enter a valid IPv4 address and port, for example 26.12.34.56:3210.|请输入正确的 IPv4 地址和端口，例如 26.12.34.56:3210。
+This port is in use. Choose another port.|端口已被占用，请换一个端口。
+Could not create the room. Check the port and try again.|未能创建房间，请检查端口后重试。
+Could not connect. Check the IP, port, Radmin network and firewall.|连接失败，请检查 IP、端口、Radmin 网络和防火墙。
+Connection timed out. Check the IP, port, Radmin network and firewall.|连接超时，请检查 IP、端口、Radmin 网络和防火墙。
+Game versions differ. Both players need the same game release.|游戏版本不同，双方需要使用同一份游戏版本。
+Room unavailable. Check that the host is waiting and the room is not full.|无法加入房间，请确认主机正在等待，且房间未满。
+Connection lost. Leave this room and create or join a new one.|连接已断开，请离开此房间后重新创建或加入。
+Waiting for friend to resume|等待朋友继续
+Friend serve · Stop moving to receive|朋友发球 · 停稳准备接发
+Friend serve|朋友发球
+Friend scores +1|朋友得分 +1
+Friend wins|朋友获胜
+Friend match point|朋友局点
+Friend:|朋友：
+Friend|朋友
+Stop moving before serving|停稳后再发球
+Both players must stop in their service courts.|双方都需在各自发球区内停稳。
+Get ready for the return|准备接下一拍
+Ready for rematch|准备再来一局
 Choose your language. Changes apply immediately.|选择界面语言，切换后立即生效。
 Settings|游戏设置
 MAKE IT YOURS|按你的习惯来

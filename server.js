@@ -10,6 +10,8 @@ files['/guidance.js'] = ['guidance.js', 'text/javascript; charset=utf-8'];
 files['/touch-input.js'] = ['touch-input.js', 'text/javascript; charset=utf-8'];
 files['/tutorial.js'] = ['tutorial.js', 'text/javascript; charset=utf-8'];
 files['/i18n.js'] = ['i18n.js', 'text/javascript; charset=utf-8'];
+files['/lan-core.js'] = ['lan-core.js', 'text/javascript; charset=utf-8'];
+files['/lan-client.js'] = ['lan-client.js', 'text/javascript; charset=utf-8'];
 files['/target-challenge.js'] = ['target-challenge.js', 'text/javascript; charset=utf-8'];
 files['/assets/characters/anime-athlete-v1/game-renderer.js'] = ['assets/characters/anime-athlete-v1/game-renderer.js', 'text/javascript; charset=utf-8'];
 files['/assets/characters/pixel-athlete-v2/game-renderer.js'] = ['assets/characters/pixel-athlete-v2/game-renderer.js', 'text/javascript; charset=utf-8'];

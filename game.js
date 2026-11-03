@@ -1,5 +1,7 @@
 (() => {
 'use strict';
+let lanClient = null, lanActive = false, lanHosting = false, lanBusy = false, lanFailed = false;
+let lanView = null, lanRoom = null, lanRound = -1, lanFlight = -1, lanGeneration = 0;
 const { clamp, RULES, SWING, POWER, createPlayer, startJump, updateJump, contactTime, contactTimingError, isHighShot, isInterceptable, aimHorizontal, defaultPowerFor, shotFor, planReturn, incomingPosition, returnPosition, returnFault, difficulty, movePlayer, makeDelivery, assessHit, judgeHit, pointsFor } = globalThis.ShuttleCore;
 const { SERVICE, createMatch, awardPoint, createOpponent, advanceOpponentReturn, makeMatchDelivery, serviceSetup, inServiceCourt, constrainToServiceCourt, serviceTarget, makeServiceDelivery } = globalThis.ShuttleCore;
 const { recoverOpponent, TRAINING, TRAINING_ERRORS, createTrainingSession, makeTrainingDelivery, recordTrainingOutcome, trainingAdvice } = globalThis.ShuttleCore;
@@ -101,9 +103,10 @@ try {
     appearanceSettings[`${role}RacketSize`] = normalizeRacketSize(stored?.[`${role}RacketSize`]);
   }
 } catch { /* Keep the classic court when saved appearance is unavailable. */ }
-const courtStyle = () => COURT_STYLES[appearanceSettings.court];
-const athleteJersey = role => jerseyPalette(role, appearanceSettings[`${role}JerseyColor`], appearanceSettings[`${role}JerseyStripe`]);
-const athleteRacket = role => racketAppearance(appearanceSettings[`${role}RacketStyle`], appearanceSettings[`${role}RacketSize`], appearanceSettings[`${role}RacketColor`], appearanceSettings[`${role}RacketGrip`]);
+const courtStyle = () => COURT_STYLES[lanActive && lanView ? lanView.court : appearanceSettings.court] ?? COURT_STYLES.classic;
+const networkLook = role => lanActive && lanView ? lanView.looks[role === 'player' ? lanView.side : 1 - lanView.side] : null;
+const athleteJersey = role => { const look = networkLook(role); return look ? jerseyPalette('player', look.JerseyColor, look.JerseyStripe) : jerseyPalette(role, appearanceSettings[`${role}JerseyColor`], appearanceSettings[`${role}JerseyStripe`]); };
+const athleteRacket = role => { const look = networkLook(role); return look ? racketAppearance(look.RacketStyle, look.RacketSize, look.RacketColor, look.RacketGrip) : racketAppearance(appearanceSettings[`${role}RacketStyle`], appearanceSettings[`${role}RacketSize`], appearanceSettings[`${role}RacketColor`], appearanceSettings[`${role}RacketGrip`]); };
 // Transparent captions use an ink suited to the floor, independent of marker colors.
 const courtTextInks = Object.freeze({ classic: '#10291b', sakura: '#223042', sky: '#122a3b', dusk: '#27223e' });
 function markerOutline(color) {
@@ -280,6 +283,7 @@ function setVolume(value) {
   volume = Math.round(clamp(value, 0, 100)); saveAudioSettings();
 }
 function updateHud() {
+  if (lanActive && lanView) { updateLanHud(); return; }
   const competing = mode === 'match';
   i18n.text($('score-label'), competing ? 'YOU' : 'SCORE');
   i18n.text($('combo-label'), competing ? 'CPU' : 'COMBO');
@@ -346,12 +350,12 @@ function updatePracticeStatus() {
 }
 function showPanel(id) {
   $('overlay').classList.remove('hidden');
-  for (const name of ['welcome', 'mode-setup', 'phone-ready', 'paused', 'results', 'settings', 'help', 'personalization']) $(name).classList.toggle('hidden', name !== id);
+  for (const name of ['welcome', 'mode-setup', 'phone-ready', 'lan-panel', 'paused', 'results', 'settings', 'help', 'personalization']) $(name).classList.toggle('hidden', name !== id);
   if (currentPanel !== id) $(id).querySelector('.panel-content')?.scrollTo({ top: 0 });
   currentPanel = id;
 }
 function focusPanel(id) {
-  const target = { welcome: 'choose-' + selectedMode, 'mode-setup': 'start', 'phone-ready': 'phone-ready-play', paused: 'resume', settings: 'settings-close', personalization: 'personalization-close', help: 'help-close', results: 'restart' }[id];
+  const target = { welcome: 'choose-' + selectedMode, 'mode-setup': 'start', 'phone-ready': 'phone-ready-play', 'lan-panel': 'lan-leave', paused: 'resume', settings: 'settings-close', personalization: 'personalization-close', help: 'help-close', results: 'restart' }[id];
   $(target).focus({ preventScroll: true });
 }
 function backToCover() {
@@ -776,6 +780,7 @@ function startGame(tutorialStart = false) {
 }
 function togglePause() {
   if (!$('settings').classList.contains('hidden') || !$('help').classList.contains('hidden') || !$('personalization').classList.contains('hidden')) return;
+  if (lanActive) { toggleLanPause(); return; }
   if (state === 'playing') { state = 'paused'; keys.clear(); touchControls.reset(); previewShot = 'clear'; showPanel('paused'); i18n.text($('pause'), '▶'); i18n.attr($('pause'), 'aria-label', 'Resume game'); }
   else if (state === 'paused') { state = 'playing'; $('overlay').classList.add('hidden'); i18n.text($('pause'), 'Ⅱ'); i18n.attr($('pause'), 'aria-label', 'Pause game'); enableAudio(); }
   if (tutorial) renderTutorial();
@@ -784,6 +789,7 @@ function toggleSound() {
   muted = !muted; saveAudioSettings(); if (!muted) enableAudio().then(() => sound('hit'));
 }
 function finish() {
+  if (lanActive) { finishLan(); return; }
   state = 'over'; keys.clear(); touchControls.reset();
   i18n.html($('restart'), `${mode === 'match' ? 'Play Again' : 'Practice Again'} <span>↗</span>`);
   $('result-training').classList.toggle('hidden', mode !== 'drill'); updateHud();
@@ -836,6 +842,7 @@ function burst(point, color, count = 18, scatter = 100) {
   for (let i = 0; i < count; i++) { const angle = Math.random() * Math.PI * 2, speed = 45 + Math.random() * scatter; particles.push({ x: point.x, y: point.y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: .6, color }); }
 }
 function hit(requested = 'clear') {
+  if (lanActive) { hitLan(requested); return; }
   if (state !== 'playing' || roundBreak > 0) return;
   if (tutorial && !['try', 'apex'].includes(tutorial.phase)) return;
   if (cooldown > 0) { feedback('Recovering', 'Let the racket recover before swinging again.'); return; }
@@ -911,13 +918,18 @@ function resolveHit() {
   }
 }
 function jump() {
+  if (lanActive) {
+    if (state !== 'playing' || roundBreak > 0 || delivery?.phase === 'serve' || lanFailed) return;
+    if (startJump(player)) { lanClient.action('jump'); enableAudio(); sound('jump'); }
+    return;
+  }
   if (state !== 'playing' || roundBreak > 0) return;
   if (tutorial && (tutorial.phase !== 'try' || !tutorials.lessonFor(tutorial).jump)) return;
   if (mode === 'match' && delivery?.phase === 'serve') { feedback('Stay grounded to serve', 'Move and jump freely after the serve.'); return; }
   if (!startJump(player)) return;
   enableAudio(); sound('jump');
 }
-$('start').onclick = () => requestGameStart(); $('restart').onclick = () => requestGameStart(mode === 'tutorial'); $('resume').onclick = togglePause; $('pause').onclick = togglePause; $('sound').onclick = toggleSound;
+$('start').onclick = () => requestGameStart(); $('restart').onclick = () => { if (lanActive) { showPanel('lan-panel'); lanClient.ready(true, ownLanLook()); renderLanRoom(); } else requestGameStart(mode === 'tutorial'); }; $('resume').onclick = togglePause; $('pause').onclick = togglePause; $('sound').onclick = toggleSound;
 $('help-open').onclick = openHelp; $('help-close').onclick = closeHelp; $('fullscreen').onclick = toggleFullscreen;
 $('settings-sound').onclick = () => { muted = !muted; saveAudioSettings(); };
 $('reset-audio').onclick = () => { volume = 100; muted = false; saveAudioSettings(); };
@@ -959,6 +971,7 @@ function chooseMode(value) {
     button.classList.toggle('selected', selected); button.setAttribute('aria-pressed', String(selected));
   }
   $('match-options').classList.toggle('hidden', value !== 'match');
+  $('lan-open').classList.toggle('hidden', value !== 'match');
   $('drill-options').classList.toggle('hidden', value !== 'drill');
   i18n.text($('ai-style-note'), AI_STYLES[selectedAiStyle].description);
   i18n.text($('ai-level-note'), aiLevelDescriptions[selectedAiLevel]);
@@ -998,7 +1011,7 @@ for (const button of document.querySelectorAll('[data-ai-style]')) button.onclic
   updateSetupSummary();
 };
 function returnToMenu() { state = 'ready'; tutorial = null; tutorialUiKey = ''; document.body.classList.remove('tutorial-mode'); $('tutorial-coach').classList.add('hidden'); setFocusView(false); keys.clear(); touchControls.reset(); delivery = null; swing = opponentSwing = impact = landing = null; roundBreak = 0; player = createPlayer(); opponent = createOpponent(selectedAiLevel, selectedAiStyle); trail = []; particles = []; for (const m of [motion, opponentMotion]) for (const key of Object.keys(m)) m[key] = 0; setPower(null); $('feedback').classList.remove('visible'); i18n.text($('pause'), 'Ⅱ'); showPanel('welcome'); chooseMode(selectedMode); i18n.attr($('tutorial-entry'), 'aria-label', tutorialCompleted ? 'Replay the on-court beginner tutorial' : 'Start the on-court beginner tutorial'); }
-function leaveResults() { challenge = challengeZone = null; returnToMenu(); $('drill-end').classList.add('hidden'); $('ai-status').classList.add('hidden'); $('touch-jump').classList.remove('recommended'); }
+function leaveResults() { if (lanActive || lanClient?.connected || lanHosting) closeLan(); challenge = challengeZone = null; returnToMenu(); $('drill-end').classList.add('hidden'); $('ai-status').classList.add('hidden'); $('touch-jump').classList.remove('recommended'); }
 $('result-menu').onclick = leaveResults;
 $('pause-menu').onclick = () => { if (mode !== 'match' && mode !== 'tutorial' && state === 'paused') finish(); else leaveResults(); };
 function recordDrill(outcome) {
@@ -1108,6 +1121,7 @@ window.addEventListener('keydown', event => {
   else if (event.code === 'Escape' && !$('help').classList.contains('hidden')) closeHelp();
   else if (event.code === 'Escape' && !$('settings').classList.contains('hidden')) closeSettings();
   else if (event.code === 'Escape' && !$('personalization').classList.contains('hidden')) closePersonalization();
+  else if (event.code === 'Escape' && currentPanel === 'lan-panel') leaveLan();
   else if (event.code === 'Escape' && state === 'ready' && currentPanel === 'mode-setup') backToCover();
   else if (event.code === 'KeyP' || event.code === 'Escape') togglePause();
   if (event.code === 'KeyM') toggleSound();
@@ -1140,8 +1154,8 @@ canvas.closest('.game-shell').addEventListener('wheel', event => {
   const current = selectedPower ?? defaultPowerFor(previewShot, powerDefaults);
   setPower(clamp(current - direction, 1, 3));
 }, { passive: false });
-window.addEventListener('blur', () => { keys.clear(); touchControls.reset(); if (state === 'playing') togglePause(); });
-document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') togglePause(); });
+window.addEventListener('blur', () => { keys.clear(); touchControls.reset(); if (lanActive) { lanClient.input(0, 0); if (state === 'playing') toggleLanPause(true); } else if (state === 'playing') togglePause(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'playing') { if (lanActive) toggleLanPause(true); else togglePause(); } });
 const touchControls = globalThis.ShuttleTouch.createControls({
   document, window, i18n,
   isActive: () => state === 'playing' && roundBreak === 0 && $('overlay').classList.contains('hidden'),
@@ -1206,6 +1220,7 @@ function updatePose(actor, pose, activeSwing, ball, dt, isOpponent = false, anti
   pose.lastSpeed = speed;
 }
 function update(dt) {
+  if (lanActive) { updateLan(dt); return; }
   if (state !== 'playing') return;
   if (tutorial) { updateTutorial(dt); return; }
   elapsed += dt; cooldown = Math.max(0, cooldown - dt);
@@ -1853,7 +1868,7 @@ function courtText(text, x, y) {
   ctx.fillText(tr(text), 0, 0); ctx.restore();
 }
 function courtLabel(text, x, y) {
-  ctx.save(); ctx.fillStyle = courtTextInks[appearanceSettings.court];
+  ctx.save(); ctx.fillStyle = courtTextInks[lanActive && lanView ? lanView.court : appearanceSettings.court] ?? courtTextInks.classic;
   courtText(text, x, y); ctx.restore();
 }
 let courtLabels = [];
@@ -2034,6 +2049,273 @@ function draw(previewOnly = false) {
     ctx.save(); ctx.font = label.font; ctx.textAlign = 'center'; courtLabel(label.text, label.x, label.y); ctx.restore();
   }
 }
+function ownLanLook() {
+  const look = {};
+  for (const part of ['JerseyColor', 'JerseyStripe', 'RacketStyle', 'RacketSize', 'RacketColor', 'RacketGrip']) look[part] = appearanceSettings['player' + part];
+  return look;
+}
+const lanMessages = {
+  idle: "Create a room or enter your friend's address.",
+  connecting: 'Connecting…',
+  connected: 'Connected. Get ready when both players have joined.',
+  address: 'Enter a valid IPv4 address and port, for example 26.12.34.56:3210.',
+  port: 'This port is in use. Choose another port.',
+  host: 'Could not create the room. Check the port and try again.',
+  connection: 'Could not connect. Check the IP, port, Radmin network and firewall.',
+  timeout: 'Connection timed out. Check the IP, port, Radmin network and firewall.',
+  version: 'Game versions differ. Both players need the same game release.',
+  full: 'Room unavailable. Check that the host is waiting and the room is not full.',
+  disconnected: 'Connection lost. Leave this room and create or join a new one.'
+};
+function lanStatus(code) {
+  i18n.text($('lan-status'), lanMessages[code] ?? lanMessages.connection);
+  $('lan-status').classList.toggle('error', !['idle', 'connecting', 'connected'].includes(code));
+}
+function renderLanRoom() {
+  const joined = lanClient?.connected;
+  $('lan-connect').classList.toggle('hidden', joined || lanFailed);
+  $('lan-room').classList.toggle('hidden', !joined && !lanFailed);
+  $('lan-ready').classList.toggle('hidden', !joined || lanFailed);
+  $('lan-ready').disabled = !lanView?.connected?.[1] || lanBusy;
+  $('lan-create').disabled = lanBusy || !window.shuttleDesktop;
+  $('lan-join').disabled = lanBusy;
+  $('lan-desktop-note').classList.toggle('hidden', Boolean(window.shuttleDesktop));
+  $('lan-host-addresses').classList.toggle('hidden', !lanHosting || !joined);
+  i18n.text($('lan-leave'), joined || lanFailed ? 'Leave room' : 'Back to match setup');
+  if (!lanView) return;
+  i18n.text($('lan-you'), lanView.ready[0] ? 'You · Ready' : 'You · Not ready');
+  i18n.text($('lan-friend'), !lanView.connected[1] ? 'Friend · Waiting to join' : lanView.ready[1] ? 'Friend · Ready' : 'Friend · Not ready');
+  i18n.text($('lan-ready'), lanView.ready[0] ? 'Cancel ready' : 'Ready');
+  i18n.text($('lan-room-format'), lanView.match.target + ' points · Win by 2 · Cap ' + lanView.match.cap);
+}
+function closeLan() {
+  lanGeneration++; lanClient?.disconnect();
+  lanActive = lanHosting = lanBusy = lanFailed = false; lanView = lanRoom = null;
+  lanRound = lanFlight = -1; courtBackdrop = null;
+  $('resume').disabled = false; i18n.html($('resume'), 'Resume game <span>↗</span>');
+  i18n.text($('match-player').querySelector('span').firstChild, 'You ');
+  // Closing a room also releases its listening socket before the next create.
+  window.shuttleDesktop?.stopLan().catch(() => {});
+}
+function leaveLan() {
+  closeLan(); keys.clear(); touchControls.reset(); returnToMenu(); openModeSetup('match');
+}
+async function connectLan(hosting) {
+  if (lanBusy) return;
+  const generation = ++lanGeneration; lanBusy = true; lanFailed = false;
+  lanHosting = hosting; lanStatus('connecting'); renderLanRoom();
+  try {
+    let address = $('lan-address').value.trim(), token;
+    if (hosting) {
+      const port = Number($('lan-port').value), target = Number($('lan-points').value);
+      if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('address');
+      const room = await window.shuttleDesktop.hostLan({ port, target, court: appearanceSettings.court });
+      if (generation !== lanGeneration) return;
+      if (room.error) throw new Error(room.error);
+      lanRoom = room; token = room.token; address = '127.0.0.1:' + room.port;
+      $('lan-addresses').textContent = room.addresses.map(ip => ip + ':' + room.port).join('\n') || address;
+    } else globalThis.ShuttleLan.parseAddress(address);
+    await lanClient.connect(address, { token, look: ownLanLook() });
+    if (generation !== lanGeneration) return;
+    if (!hosting) try { localStorage.setItem('shuttle-flow-lan-address', address); } catch {}
+    enableAudio();
+  } catch (error) {
+    if (generation !== lanGeneration) return;
+    lanClient.disconnect(); lanStatus(error.message);
+    if (hosting) { lanHosting = false; window.shuttleDesktop?.stopLan().catch(() => {}); }
+  } finally {
+    if (generation === lanGeneration) { lanBusy = false; renderLanRoom(); }
+  }
+}
+function receiveLan(view) {
+  const previous = lanView; lanView = view;
+  if (view.phase === 'disconnected') {
+    lanFailed = true; state = 'paused'; keys.clear(); touchControls.reset();
+    lanStatus('disconnected'); showPanel('lan-panel'); renderLanRoom(); return;
+  }
+  if (view.phase === 'lobby') { renderLanRoom(); return; }
+  if (!lanActive) {
+    lanActive = true; mode = 'match'; tutorial = challenge = training = null;
+    document.body.classList.remove('tutorial-mode'); $('tutorial-coach').classList.add('hidden');
+    setFocusView(true); courtBackdrop = null; player = { ...view.player }; opponent = { ...view.opponent };
+    particles = []; trail = []; impact = landing = swing = opponentSwing = null;
+  }
+  match = view.match;
+  if (lanRound !== view.round) {
+    lanRound = view.round; player = { ...view.player }; opponent = { ...view.opponent };
+    keys.clear(); touchControls.reset(); swing = opponentSwing = null; setPower(null); previewShot = 'clear';
+    for (const m of [motion, opponentMotion]) for (const k of Object.keys(m)) m[k] = 0;
+  }
+  if (lanFlight !== view.flightId) { lanFlight = view.flightId; trail = []; setPower(null); }
+  if (view.phase === 'over') {
+    if (previous?.phase !== 'over') finishLan();
+    else if (currentPanel === 'lan-panel') renderLanRoom();
+    return;
+  }
+  if (view.phase === 'paused') {
+    state = 'paused'; keys.clear(); touchControls.reset();
+    if (!['settings', 'help', 'personalization'].includes(currentPanel) || $('overlay').classList.contains('hidden')) showPanel('paused');
+    $('resume').disabled = !view.paused[0];
+    i18n.text($('resume'), view.paused[0] ? 'Resume game' : 'Waiting for friend to resume');
+    i18n.text($('pause'), '▶');
+  } else {
+    const wasPlaying = state === 'playing';
+    state = 'playing'; $('overlay').classList.add('hidden'); i18n.text($('pause'), 'Ⅱ');
+    if (!wasPlaying) canvas.focus({ preventScroll: true });
+    $('resume').disabled = false;
+    // A ready player may have minimized the window before the start arrived.
+    if (document.hidden) toggleLanPause(true);
+  }
+  updateLanHud();
+}
+function handleLanEvent(event, side) {
+  if (!lanActive || lanFailed) return;
+  const mine = event.side === side;
+  if (event.type === 'hit') {
+    const contact = mine ? event.contact : globalThis.ShuttleLanCore.mirror(event.contact);
+    const ground = project(contact.x, contact.y);
+    const point = { x: ground.x, y: ground.y - contact.z * figureYScale, groundY: ground.y, flightHeight: contact.z };
+    const stroke = { age: SWING.impact, type: event.shot, requested: event.shot, contacted: true,
+      power: event.power, backhand: event.backhand, overhead: event.overhead, contactScreen: point };
+    if (mine) swing = stroke; else opponentSwing = stroke;
+    impact = { ...point, age: 0, shotType: event.shot, power: event.power, smash: ['smash', 'tap'].includes(event.shot) };
+    const feel = killEffect(event.shot, event.power);
+    burst(point, shotColors[event.shot] ?? '#ddfc91', feel?.particles ?? 18, feel?.scatter ?? 100);
+    sound(event.shot === 'smash' ? 'smash' : event.shot === 'tap' ? 'tap' : ['drop', 'block'].includes(event.shot) ? 'drop' : 'hit', event.power);
+    feedback(mine ? shotNames[event.shot] : 'Friend: ' + shotNames[event.shot], '', false, mine ? 'hit' : 'opponent');
+  } else if (event.type === 'miss' && mine) {
+    const reason = hitReasons[event.reason] ?? hitReasons['no-ball'];
+    feedback(event.reason === 'serve' ? 'Stop moving before serving' : reason[0], event.reason === 'serve' ? 'Both players must stop in their service courts.' : reason[1], true);
+    sound('swing');
+  } else if (event.type === 'point') {
+    keys.clear(); touchControls.reset(); trail = []; swing = opponentSwing = null;
+    feedback(mine ? 'You score +1' : 'Friend scores +1', event.reason === 'out' ? 'Out' : event.reason === 'net' ? 'Net' : '', !mine);
+    sound(mine ? 'perfect' : 'miss');
+  }
+}
+function updateLanHud() {
+  if (!lanView) return;
+  const m = lanView.match;
+  document.querySelector('.hud').classList.add('hidden');
+  document.querySelector('.best-label').classList.add('hidden');
+  document.querySelector('.game-shell').classList.add('match-mode');
+  $('match-board').classList.remove('hidden'); $('drill-end').classList.add('hidden');
+  $('ai-status').classList.remove('hidden');
+  i18n.text($('mode-label'), 'LAN Match');
+  i18n.text($('match-computer').querySelector('span').firstChild, 'Friend ');
+  i18n.text($('match-player-score'), m.player); i18n.text($('match-computer-score'), m.computer);
+  i18n.text($('match-format'), m.target + ' pts · LAN Match');
+  i18n.text($('match-server'), m.winner ? 'Match complete' : m.server === 'player' ? 'Your serve' : 'Friend serve');
+  $('match-player').classList.toggle('serving', m.server === 'player' && !m.winner);
+  $('match-computer').classList.toggle('serving', m.server === 'computer' && !m.winner);
+  i18n.attr($('match-player'), 'aria-label', 'You: ' + m.player + ' points');
+  i18n.attr($('match-computer'), 'aria-label', 'Friend: ' + m.computer + ' points');
+  const tied = m.player === m.computer && m.player >= m.target - 1;
+  const yourPoint = m.player >= m.cap - 1 || (m.player >= m.target - 1 && m.player > m.computer);
+  const theirPoint = m.computer >= m.cap - 1 || (m.computer >= m.target - 1 && m.computer > m.player);
+  i18n.text($('match-situation'), m.winner ? m.winner === 'player' ? 'You win' : 'Friend wins' : yourPoint && theirPoint ? 'Match point' : yourPoint ? 'Your match point' : theirPoint ? 'Friend match point' : tied ? 'Deuce · Win by 2 · Cap ' + m.cap : 'Rally: ' + lanView.rally + ' shots');
+  $('match-situation').classList.toggle('game-point', !m.winner && (yourPoint || theirPoint));
+  i18n.text($('ai-status'), 'LAN Match · ' + lanClient.ping + ' ms');
+  i18n.text($('pause-menu'), 'Leave room');
+}
+function toggleLanPause(forcePause = false) {
+  if (lanFailed || !lanClient.connected || !['playing', 'paused'].includes(state)) return;
+  const paused = forcePause || state === 'playing' || !lanView?.paused[0];
+  lanClient.pause(paused); keys.clear(); touchControls.reset();
+  if (paused) {
+    state = 'paused'; showPanel('paused');
+    i18n.text($('resume'), 'Resume game'); $('resume').disabled = false;
+  }
+}
+function hitLan(requested) {
+  if (state !== 'playing' || roundBreak > 0 || cooldown > 0 || swing || lanFailed) return;
+  if (delivery?.phase === 'serve' && match.server !== 'player') return;
+  const power = selectedPower ?? defaultPowerFor(requested, powerDefaults);
+  const prediction = contactPrediction();
+  const contact = prediction?.point ?? { x: player.x + .02, y: player.y, z: 50 };
+  const shot = shotFor(prediction?.player ?? player, contact, requested, power, prediction?.ball ?? delivery);
+  const { dx, dy } = movementInput(); lanClient.input(dx, dy);
+  lanClient.action('hit', { requested, power, aim: aimX, flightId: lanView.flightId });
+  swing = { age: 0, type: shot.type, requested, power, aimX, contacted: true,
+    overhead: shot.overhead, backhand: shot.backhand, serving: delivery?.phase === 'serve' };
+  cooldown = RULES.cooldown; enableAudio();
+}
+function finishLan() {
+  state = 'over'; keys.clear(); touchControls.reset();
+  match = lanView.match;
+  i18n.text($('result-kicker'), 'LAN Match');
+  i18n.text($('result-title'), match.winner === 'player' ? 'You won. Well played!' : 'Friend wins');
+  i18n.text($('final-score'), match.player + ' : ' + match.computer);
+  i18n.text($('result-details'), match.target + ' points · Win by 2 · Cap ' + match.cap + '\nLongest rally ' + lanView.longest);
+  $('result-training').classList.add('hidden');
+  i18n.text($('restart'), 'Ready for rematch'); showPanel('results'); $('restart').focus();
+  updateLanHud();
+}
+function updateLan(dt) {
+  if (lanFailed || !lanClient?.connected) return;
+  const sample = lanClient.sample();
+  if (!sample || !['playing', 'paused'].includes(sample.phase)) return;
+  match = sample.match; delivery = sample.delivery; opponent = sample.opponent;
+  roundBreak = sample.stage === 'point' ? 1 : 0;
+  if (state !== 'playing') { lanClient.input(0, 0); player = sample.player; return; }
+  const { dx, dy } = movementInput(); lanClient.input(dx, dy);
+  // Respond to movement immediately; reconcile small differences against the
+  // authoritative state rather than snapping the local player every packet.
+  if (!roundBreak) movePlayer(player, dx, dy, dt);
+  const blend = Math.min(1, dt * 12);
+  player.x += (sample.player.x - player.x) * blend; player.y += (sample.player.y - player.y) * blend;
+  updateJump(player, dt);
+  if (sample.player.height > 0 || player.verticalVelocity <= 0) {
+    player.height += (sample.player.height - player.height) * blend;
+    player.verticalVelocity = sample.player.verticalVelocity; player.jumpRecovery = sample.player.jumpRecovery;
+  }
+  if (sample.stage === 'serve') constrainToServiceCourt(player, serviceSetup(match).playerCourt);
+  cooldown = Math.max(0, cooldown - dt, sample.cooldown - dt);
+  for (const which of ['player', 'opponent']) {
+    const actor = which === 'player' ? player : opponent, pose = which === 'player' ? motion : opponentMotion;
+    const stroke = which === 'player' ? swing : opponentSwing;
+    const run = roundBreak ? 0 : clamp(Math.hypot(actor.vx, actor.vy) / RULES.speed, 0, 1);
+    pose.run += (run - pose.run) * Math.min(1, dt * 12);
+    pose.lean += ((actor.vx / RULES.speed * 6) - pose.lean) * Math.min(1, dt * 6);
+    pose.pitch += ((actor.vy / RULES.speed * 3) - pose.pitch) * Math.min(1, dt * 9);
+    pose.gait += dt * (7 + 11 * pose.run);
+    const ball = delivery?.phase === 'incoming' ? incomingPosition(delivery) : delivery?.phase === 'return' ? returnPosition(delivery) : null;
+    updatePose(actor, pose, stroke, ball, dt, which === 'opponent');
+    if (stroke) {
+      stroke.age += dt;
+      if (stroke.age >= SWING.duration) { if (which === 'player') swing = null; else opponentSwing = null; }
+    }
+  }
+  if (impact) { impact.age += dt; if (impact.age > .2) impact = null; }
+  for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 180 * dt; p.life -= dt; }
+  particles = particles.filter(p => p.life > 0);
+  if (feedbackTime > 0) { feedbackTime -= dt; if (feedbackTime <= 0) $('feedback').classList.remove('visible'); }
+  const cue = contactCue();
+  i18n.text($('action-status'), roundBreak ? 'Next rally' : delivery?.phase === 'serve' ? match.server === 'player' ? 'Your serve · Left: long / Right: short' : 'Friend serve · Stop moving to receive' : delivery?.phase === 'return' ? 'Get ready for the return' : cue.smash ? 'Jump smash · Right click' : cue.grade ? 'Hit now' : cue.reason === 'far' ? 'Move to the contact ring' : cue.reason === 'high' ? 'Too high · Wait or jump' : 'Ready for the next shuttle');
+  $('action-status').classList.toggle('smash-ready', Boolean(cue.smash));
+  updateShotOptions(); updatePowerStatus(); updateLanHud();
+}
+function setupLan() {
+  if (!globalThis.ShuttleLan) return;
+  lanClient = globalThis.ShuttleLan.createClient({
+    onState: receiveLan, onEvent: handleLanEvent,
+    onStatus(code) {
+      lanStatus(code);
+      if (!['idle', 'connecting', 'connected'].includes(code) && lanActive) {
+        lanFailed = true; state = 'paused'; keys.clear(); touchControls.reset(); showPanel('lan-panel'); renderLanRoom();
+      }
+    }
+  });
+  $('lan-open').onclick = () => {
+    lanStatus('idle'); $('lan-points').value = String(selectedPoints);
+    try { $('lan-address').value = localStorage.getItem('shuttle-flow-lan-address') ?? ''; } catch {}
+    renderLanRoom(); showPanel('lan-panel'); $('lan-address').focus();
+  };
+  $('lan-create').onclick = () => connectLan(true); $('lan-join').onclick = () => connectLan(false);
+  $('lan-leave').onclick = $('lan-back').onclick = leaveLan;
+  $('lan-ready').onclick = () => { if (lanView && !lanFailed) lanClient.ready(!lanView.ready[0], ownLanLook()); };
+  $('lan-address').addEventListener('keydown', event => { if (event.code === 'Enter') connectLan(false); });
+}
 let last = performance.now();
 function frame(now) {
   if (renderDpr !== (window.devicePixelRatio || 1)) {
@@ -2089,5 +2371,5 @@ i18n.onChange((language, saved) => {
   if (tutorial) renderTutorial();
   renderAppearance(); draw();
 });
-renderPowerDefaults(); renderAudioSettings(); updateHud(); i18n.refresh(); resizeCourtDetails(); requestAnimationFrame(frame);
+setupLan(); renderPowerDefaults(); renderAudioSettings(); updateHud(); i18n.refresh(); resizeCourtDetails(); requestAnimationFrame(frame);
 })();

@@ -31,6 +31,10 @@ try {
   }
   await cp(join(root, 'assets'), join(staging, 'assets'), { recursive: true });
   await cp(join(root, 'desktop'), join(staging, 'desktop'), { recursive: true, filter: source => !source.endsWith('.test.cjs') });
+  await cp(join(root, 'network'), join(staging, 'network'), { recursive: true, filter: source => !source.endsWith('.test.mjs') });
+  // ws is the only runtime dependency. Ship it inside ASAR so friends need no
+  // Node/npm installation and the host works without downloading anything.
+  await cp(join(root, 'node_modules', 'ws'), join(staging, 'node_modules', 'ws'), { recursive: true });
   await writeFile(join(staging, 'package.json'), JSON.stringify({ name: metadata.name, productName: metadata.productName, version: metadata.version, description: metadata.description, main: metadata.main, type: 'module' }, null, 2));
   await writeFile(join(staging, 'README.txt'), 'Shuttle Flow\r\nRun Shuttle Flow.exe. Keep the entire folder together.\r\nF11: fullscreen. P: pause. Settings save automatically.\r\nSettings > Language: English / Simplified Chinese.\r\n');
   const paths = reuseRuntime ? [portable] : await packager({ dir: staging, out: output, name: 'Shuttle Flow', platform: 'win32', arch: 'x64', electronVersion, download: { checksums: require('electron/checksums.json') }, asar: true, overwrite: true, prune: false, icon: join(root, 'assets', 'desktop', 'icon.ico'), appCopyright: 'Shuttle Flow', win32metadata: { ProductName: 'Shuttle Flow', FileDescription: 'Shuttle Flow badminton game' } });
@@ -60,6 +64,16 @@ try {
     '界面默认英语；Settings > Language 可切换 English / 简体中文，自动保存。', '',
     '音量、球场、落点颜色和最高分自动保存在本机 %APPDATA%\\ShuttleFlow。',
     '每位玩家使用自己的设置和记录；游戏包不包含作者的存档。', '',
+    '局域网 / Radmin VPN 双人对战',
+    '1. 双方使用同一份 1.1.0 游戏，并加入同一个局域网或 Radmin VPN 网络。',
+    '2. Match Mode（比赛模式）> LAN Match（局域网对战）。',
+    '3. 主机选择 Create room（创建房间），默认端口 3210，可选 7 / 15 / 21 分。',
+    '4. 朋友在 Join room（加入房间）输入主机的 Radmin VPN IP:端口。',
+    '5. 双方点击 Ready（准备）后开始。双方都从己方底线看球场，键鼠操作不变。',
+    'Windows 询问时，允许游戏通过当前局域网或 VPN 网络的防火墙；无需关闭防火墙。',
+    '游戏自动启动联机服务，无需 Node.js、公网 IP 或路由器端口映射。',
+    '任一方暂停或切换窗口会同步暂停；暂停的一方需自行继续。断线后重新创建 / 加入房间。',
+    '结算后双方准备可再来一局。网络延迟与抖动会影响手感。', '',
     '分享方法：发送完整 ZIP，对方解压后启动即可。'
   ].join('\r\n') + '\r\n');
 } finally {

@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, Menu, protocol, net, screen, session, dialog } = require('electron');
+const { app, BrowserWindow, Menu, protocol, net, screen, session, dialog, ipcMain } = require('electron');
 const { mkdirSync, readFileSync, writeFileSync } = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -8,6 +8,31 @@ const { fitWindowState } = require('./window-state.cjs');
 const root = path.resolve(__dirname, '..');
 const gameURL = 'shuttle://game/';
 const checking = app.commandLine.hasSwitch('desktop-check');
+let lanServer = null;
+let lanOperation = Promise.resolve();
+function roomOperation(action) {
+  const result = lanOperation.then(action);
+  lanOperation = result.catch(() => {});
+  return result;
+}
+function validSender(event) {
+  return window && event.sender === window.webContents && event.senderFrame === window.webContents.mainFrame;
+}
+ipcMain.handle('shuttle:host-lan', (event, options) => roomOperation(async () => {
+  if (!validSender(event)) throw new Error('Invalid game window');
+  if (!options || !Number.isInteger(options.port) || options.port < 1024 || options.port > 65535
+    || ![7, 15, 21].includes(options.target) || !['classic', 'sakura', 'sky', 'dusk'].includes(options.court)) return { error: 'address' };
+  if (lanServer) { await lanServer.close(); lanServer = null; }
+  try {
+    const { createLanServer } = await import('../network/server.mjs');
+    lanServer = await createLanServer(options);
+    return { port: lanServer.port, token: lanServer.token, addresses: lanServer.addresses };
+  } catch (error) { return { error: error.code === 'EADDRINUSE' ? 'port' : 'host' }; }
+}));
+ipcMain.handle('shuttle:stop-lan', event => roomOperation(async () => {
+  if (!validSender(event)) return;
+  if (lanServer) { await lanServer.close(); lanServer = null; }
+}));
 app.setName('Shuttle Flow');
 app.setAppUserModelId('ShuttleFlow.Desktop');
 // One origin and profile for both source and packaged builds, independent of install path.
@@ -20,14 +45,14 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'shuttle', privileges: { standar
 
 const allowedExtensions = new Set(['.html', '.js', '.css', '.png', '.jpg', '.jpeg', '.webp', '.svg', '.ico', '.wav', '.mp3', '.ogg', '.woff', '.woff2']);
 const blockedDirectories = new Set(['desktop', 'scripts', 'node_modules', 'artifacts', 'dist']);
-const policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
+const policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' data: blob:; font-src 'self'; connect-src 'self' ws:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
 
 function gameFile(url) {
   const parsed = new URL(url);
   if (parsed.protocol !== 'shuttle:' || parsed.host !== 'game') return null;
   const name = decodeURIComponent(parsed.pathname === '/' ? '/index.html' : parsed.pathname).slice(1);
   const segments = name.split('/');
-  if (!name || name.includes('\\') || segments.some(part => !part || part === '.' || part === '..' || part.startsWith('.')) || blockedDirectories.has(segments[0]) || name === 'server.js' || name.endsWith('.test.js') || !allowedExtensions.has(path.extname(name).toLowerCase())) return null;
+  if (!name || name.includes('\\') || segments.some(part => !part || part === '.' || part === '..' || part.startsWith('.')) || blockedDirectories.has(segments[0]) || segments[0] === 'network' || name === 'server.js' || name.endsWith('.test.js') || !allowedExtensions.has(path.extname(name).toLowerCase())) return null;
   const target = path.resolve(root, name);
   return target.startsWith(root + path.sep) ? target : null;
 }
@@ -58,7 +83,10 @@ function createWindow() {
     title: 'Shuttle Flow', backgroundColor: '#0b2528', show: false,
     icon: path.join(root, 'assets', 'desktop', 'icon.png'),
     autoHideMenuBar: true,
-    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, backgroundThrottling: !checking }
+    // The local secure custom origin explicitly connects to ws:// LAN peers.
+    // All executable/assets stay restricted to 'self' by CSP; this opt-in is
+    // needed for unencrypted LAN sockets from that secure local origin.
+    webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, allowRunningInsecureContent: true, backgroundThrottling: !checking }
   });
   // Apply saved outer bounds explicitly; Windows can round constructor dimensions at high DPI.
   window.setBounds(state.bounds);
@@ -81,7 +109,10 @@ function createWindow() {
     try { writeFileSync(stateFile, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() })); } catch { /* A read-only profile must not prevent exit. */ }
     session.defaultSession.flushStorageData();
   });
-  window.on('closed', () => { window = null; });
+  window.on('closed', () => {
+    window = null;
+    roomOperation(async () => { if (lanServer) { await lanServer.close(); lanServer = null; } });
+  });
   window.loadURL(gameURL).catch(error => {
     console.error(error);
     if (!checking) dialog.showErrorBox('Game could not start', 'Could not load the game. Extract the complete game folder and try again.');
@@ -93,11 +124,14 @@ function createWindow() {
 if (!checking && !app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => { if (window) { if (window.isMinimized()) window.restore(); window.show(); window.focus(); } });
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     Menu.setApplicationMenu(process.platform === 'darwin' ? Menu.buildFromTemplate([
       { role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }
     ]) : null);
     protocol.handle('shuttle', serveGame);
+    // Radmin's 26.x addresses may otherwise be sent to the Windows web proxy.
+    // This affects only the game's offline/LAN session, never system settings.
+    await session.defaultSession.setProxy({ mode: 'direct' });
     session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
     createWindow();
     app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

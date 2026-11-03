@@ -63,7 +63,7 @@
           <footer class="panel-actions"><button id="phone-ready-play" class="primary" type="button">Continue in portrait <span>↗</span></button><button id="phone-ready-back" class="secondary" type="button">Back</button></footer>
         </div>
         <div class="panel navigation-panel hidden" id="mode-setup" aria-labelledby="setup-title">
-          <header class="panel-header"><button id="setup-back" class="panel-back" type="button" aria-label="Back to home">← Back</button><div><span class="panel-kicker" id="setup-kicker">PRACTICE</span><h2 id="setup-title">Practice</h2></div></header>
+          <header class="panel-header"><button id="setup-back" class="panel-back" type="button" aria-label="Back to home">← Back</button><div><span class="panel-kicker" id="setup-kicker">PRACTICE</span><h2 id="setup-title">Practice</h2></div><button id="lan-open" class="lan-entry hidden" type="button" title="Play against a friend · LAN / Radmin VPN"><b>LAN Match</b><span aria-hidden="true">↗</span></button></header>
           <div class="panel-content">
           <p id="mode-description">Practice footwork, strokes, and jump smashes with CPU feeds.<br>Unlimited feeds, a rising pace, and a session summary.</p>
           <div id="practice-options">
@@ -87,6 +87,34 @@
           </div>
           </div>
           <footer class="panel-actions"><div class="setup-summary"><strong id="setup-summary" aria-live="polite">Feed Practice · Unlimited</strong></div><button class="primary" id="start">Start Practice <span>↗</span></button></footer>
+        </div>
+        <div class="panel navigation-panel dialog-panel hidden" id="lan-panel" aria-labelledby="lan-title">
+          <header class="panel-header"><button id="lan-back" class="panel-back" type="button">← Back</button><h2 id="lan-title">LAN Match</h2></header>
+          <div class="panel-content">
+            <p id="lan-description">Join the same LAN or Radmin VPN network, then create or join a room.</p>
+            <p id="lan-status" class="lan-status" role="status" aria-live="polite">Create a room or enter your friend's address.</p>
+            <div id="lan-connect" class="lan-connect">
+              <section class="lan-create"><h3>Create room</h3>
+                <label for="lan-port">Port</label><input id="lan-port" type="number" min="1024" max="65535" value="3210" inputmode="numeric">
+                <label for="lan-points">Points to Win</label><select id="lan-points"><option value="7">7</option><option value="15">15</option><option value="21">21</option></select>
+                <button id="lan-create" class="primary" type="button">Create room</button>
+                <p id="lan-desktop-note" class="option-note hidden">Open the Windows desktop game to create a room.</p>
+              </section>
+              <section class="lan-join"><h3>Join room</h3>
+                <label for="lan-address">Host IP and port</label><input id="lan-address" type="text" autocomplete="off" spellcheck="false" placeholder="26.12.34.56:3210" aria-describedby="lan-address-note">
+                <p id="lan-address-note" class="option-note">Use the host's Radmin VPN IP, followed by a colon and the port.</p>
+                <button id="lan-join" class="primary" type="button">Join room</button>
+              </section>
+            </div>
+            <div id="lan-room" class="lan-room hidden">
+              <div id="lan-host-addresses" class="hidden"><h3>Share your address</h3><pre id="lan-addresses"></pre><p class="option-note">Use the IP shown in Radmin VPN. Other addresses also work on a LAN.</p></div>
+              <p id="lan-room-format"></p>
+              <div class="lan-players"><span id="lan-you">You · Not ready</span><span id="lan-friend">Friend · Waiting to join</span></div>
+              <p id="lan-room-note">Both players must be ready to start.</p>
+              <p class="option-note">When Windows asks, allow this game through the firewall on your LAN or VPN network.</p>
+            </div>
+          </div>
+          <footer class="panel-actions"><button id="lan-ready" class="primary hidden" type="button">Ready</button><button id="lan-leave" class="secondary" type="button">Back to match setup</button></footer>
         </div>
         <div class="panel dialog-panel hidden" id="paused" aria-labelledby="pause-title">
           <header class="panel-header"><h2 id="pause-title">Take a breather</h2></header>
@@ -172,6 +200,8 @@
   </main>
   <script src="i18n.js"></script>
   <script src="core.js"></script>
+  <script src="lan-core.js"></script>
+  <script src="lan-client.js"></script>
   <script src="target-challenge.js"></script>
   <script src="sounds.js"></script>
   <script src="appearance.js"></script>

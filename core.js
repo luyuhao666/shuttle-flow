@@ -116,7 +116,7 @@ function incomingPosition(ball) {
   const t = clamp(ball.age / ball.duration, 0, 1);
   return { x: ball.from.x + (ball.target.x - ball.from.x) * t,
     y: ball.from.y + (ball.target.y - ball.from.y) * t,
-    z: (ball.fromHeight ?? 25) * (1 - t) + 25 * t + Math.sin(t * Math.PI) * (ball.flightArc ?? 195) };
+    z: (ball.fromHeight ?? 25) * (1 - t) + (ball.toHeight ?? 25) * t + Math.sin(t * Math.PI) * (ball.flightArc ?? 195) };
 }
 function returnPosition(ball, age = ball.age) {
   const t = clamp(age / ball.returnDuration, 0, 1), from = ball.returnFrom, to = ball.returnTarget;
