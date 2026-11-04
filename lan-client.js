@@ -12,6 +12,7 @@ function createClient({ onState = () => {}, onStatus = () => {}, onEvent = () =>
   let socket = null, snapshot = null, received = 0, lastReceive = 0, timer = null;
   let sequence = 0, eventId = 0, side = 0, connected = false, rtt = 0;
   let movement = { dx: 0, dy: 0 }, lastInput = 0, status = 'idle';
+  let displayed = null, displayedAt = 0;
   const now = () => performance.now();
   function send(message) { if (socket?.readyState === 1) socket.send(JSON.stringify(message)); }
   function report(next) { status = next; onStatus(next); }
@@ -19,6 +20,7 @@ function createClient({ onState = () => {}, onStatus = () => {}, onEvent = () =>
     const old = socket; socket = null;
     if (old) { old.onclose = old.onmessage = old.onerror = null; old.close(); }
     clearInterval(timer); timer = null; connected = false; snapshot = null;
+    displayed = null; displayedAt = 0;
     movement = { dx: 0, dy: 0 }; status = 'idle';
   }
   async function connect(address, { token, look } = {}) {
@@ -92,7 +94,44 @@ function createClient({ onState = () => {}, onStatus = () => {}, onEvent = () =>
     if (snapshot?.phase !== 'playing') return;
     send({ type: 'action', seq: ++sequence, action, at: sample().time, ...values });
   }
-  return Object.freeze({ connect, disconnect, input, sample, action,
+  function presentation() {
+    if (!connected) { displayed = null; return null; }
+    const raw = sample();
+    if (!raw) return null;
+    const current = now(), elapsed = (current - displayedAt) / 1000;
+    const reset = !displayed || raw.phase !== 'playing' || elapsed > .25
+      || raw.phase !== displayed.phase || raw.round !== displayed.round
+      || raw.stage !== displayed.stage || raw.flightId !== displayed.flightId
+      || raw.delivery?.phase !== displayed.delivery?.phase;
+    if (!reset && elapsed > 0) {
+      const dt = Math.min(.1, elapsed);
+      if (raw.delivery && ['incoming', 'return'].includes(raw.delivery.phase)) {
+        // Slew only the displayed flight clock. Receiving a late packet must
+        // not rewind the shuttle. Actions and contact cues still use sample().
+        const previousAge = displayed.delivery.age;
+        const advanced = previousAge + dt;
+        const correction = C.clamp(raw.delivery.age - advanced, -dt * .2, dt * .2);
+        const horizon = snapshot.delivery.age + .1;
+        raw.delivery.age = Math.max(previousAge, Math.min(horizon, advanced + correction));
+      }
+      if (raw.stage === 'rally') {
+        const prior = displayed.opponent, target = raw.opponent;
+        if (Math.hypot(target.x - prior.x, target.y - prior.y) < .25) {
+          const predicted = { ...L.mirror(prior), vx: -prior.vx, vy: -prior.vy };
+          C.movePlayer(predicted, raw.opponentInput.dx, raw.opponentInput.dy, dt);
+          C.updateJump(predicted, dt);
+          const position = L.mirror(predicted), blend = 1 - Math.exp(-dt * 18);
+          for (const key of ['x', 'y', 'height']) target[key] = position[key] + (target[key] - position[key]) * blend;
+        }
+      }
+    } else if (!reset) {
+      // Multiple paints at one timestamp must use the same presentation.
+      return displayed;
+    }
+    displayed = raw; displayedAt = current;
+    return displayed;
+  }
+  return Object.freeze({ connect, disconnect, input, sample, presentation, action,
     ready: (ready, look) => send({ type: 'ready', ready, look }),
     pause: paused => { movement = { dx: 0, dy: 0 }; flushInput(true); send({ type: 'pause', paused }); },
     get state() { return snapshot; }, get side() { return side; },

@@ -745,7 +745,7 @@ try {
     const report=[];
     const luminance=rgb=>rgb.map(c=>c/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4).reduce((s,c,i)=>s+c*[.2126,.7152,.0722][i],0);
     const contrast=(a,b)=>(Math.max(luminance(a),luminance(b))+.05)/(Math.min(luminance(a),luminance(b))+.05);
-    for (const [label,width,height,mobile,dpr] of [['desktop',1400,900,false,1],['mobile',390,844,true,3],['landscape',844,390,true,2]]) {
+    for (const [label,width,height,mobile,dpr] of [['desktop',1400,900,false,1],['laptop',1366,768,false,1],['desktop-hidpi',1600,1000,false,2],['mobile',390,844,true,3],['landscape',844,390,true,2]]) {
       await send('Emulation.setDeviceMetricsOverride',{width,height,mobile,deviceScaleFactor:dpr});
       for (const style of label==='desktop'?['classic','sakura','sky','dusk']:['classic']) {
         await evaluate(`__courtCheck.venueScene('${style}')`);await sleep(150);
@@ -767,9 +767,29 @@ try {
       await evaluate(`__courtCheck.venueDetails()`);await shot(`${prefix}-${label}-full.png`);
       assert.equal(await evaluate(`document.getElementById('match-player-score').textContent`),'20');
       assert.ok(await evaluate(`(()=>{const b=document.querySelector('.match-board').getBoundingClientRect(),c=document.getElementById('court').getBoundingClientRect();return b.left>=c.left&&b.right<=c.right&&b.bottom<c.top+c.height*179/720;})()`),'full score stays above the playing court');
+      if(label==='desktop') for(const pose of ['idle','apex','landing']) {
+        await evaluate(`__courtCheck.poseScene('${pose}')`);
+        await shot(`${prefix}-ground-${pose}.png`);
+        const rig=await evaluate(`ShuttleAthletes.last.player`);
+        assert.ok(rig.feet.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)),`${pose}: athlete projects to finite court coordinates`);
+        if(pose==='apex') assert.ok(rig.height>40,'jump preview exercises an airborne athlete');
+        report.push({label:'ground-'+pose,height:rig.height,feet:rig.feet});
+      }
+      if(label==='desktop') {
+        const previewRoundTrip=await evaluate(`(()=>{
+          __courtCheck.venueScene('classic');const before=document.getElementById('court').toDataURL();
+          const preview=document.createElement('canvas');preview.width=1800;preview.height=1260;
+          ShuttleAthletes.drawRacketPreview(preview.getContext('2d'),{pixelRatio:3,racket:ShuttleAppearance.racketAppearance()});
+          __courtCheck.venueScene('classic');
+          return {identical:before===document.getElementById('court').toDataURL(),width:ShuttleAthletes.renderer.domElement.width,height:ShuttleAthletes.renderer.domElement.height};
+        })()`);
+        assert.ok(previewRoundTrip.identical,'large equipment preview preserves court pixels on return');
+        assert.ok(previewRoundTrip.width<=768&&previewRoundTrip.height<=768,'game releases oversized preview buffer');
+        report.push({label:'equipment-preview-round-trip',...previewRoundTrip});
+      }
     }
     await writeFile(join(artifacts,`${prefix}-checks.json`),JSON.stringify({renderer:'Edge headless / real Canvas + WebGL',errors,scenes:report},null,2));
-    console.log('Scene screenshots captured: four courts, desktop / portrait / landscape, real offline 3D athletes.');
+    console.log('Scene checks passed: four courts, five viewports (including desktop HiDPI), deterministic cache, idle / jump / landing and real offline 3D athletes.');
     break verification;
   }
   // Cover entries navigate to separate screens; footers never move with content.

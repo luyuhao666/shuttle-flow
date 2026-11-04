@@ -152,6 +152,23 @@ async function initialize() {
     b.RightHand.quaternion.copy(b.RightForeArm.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(desiredHand));
     return extension;
   }
+  function renderBitmap(camera, width, height) {
+    const small = width <= 768 && height <= 768;
+    const capacityWidth = small ? Math.ceil(width / 64) * 64 : width;
+    const capacityHeight = small ? Math.ceil(height / 64) * 64 : height;
+    const buffer = renderer.domElement;
+    // Keep capacity as near/far athletes alternate or move in depth. A large
+    // equipment preview releases its extra capacity on the next athlete draw.
+    if (small && (buffer.width > 768 || buffer.height > 768)) {
+      renderer.setSize(capacityWidth, capacityHeight, false);
+    } else if (buffer.width < width || buffer.height < height) {
+      renderer.setSize(Math.max(buffer.width, capacityWidth), Math.max(buffer.height, capacityHeight), false);
+    }
+    renderer.setViewport(0, 0, width, height);
+    renderer.setScissor(0, 0, width, height);
+    renderer.setScissorTest(true);
+    renderer.render(scene, camera);
+  }
   api.draw = (ctx, options) => {
     const role = options.opponent ? 'opponent' : 'player', actor = actors[role];
     const { bones: b, rest, group, mixer, legs, upper } = actor;
@@ -265,10 +282,10 @@ async function initialize() {
     // on portrait screens, while preserving enlarged appearance previews.
     const density = Math.max(1, Math.min(3, options.pixelRatio || 1));
     const size = Math.max(192, Math.min(768, Math.ceil(options.unit * 3.4 * density)));
-    if (renderer.domElement.width !== size) renderer.setSize(size, size, false);
-    renderer.render(scene, camera);
+    renderBitmap(camera, size, size);
     const span = options.unit * 3.4;
-    ctx.drawImage(renderer.domElement, options.x - (origin.x + 1) * span / 2,
+    ctx.drawImage(renderer.domElement, 0, renderer.domElement.height - size, size, size,
+      options.x - (origin.x + 1) * span / 2,
       options.y - options.height * options.yScale - (1 - origin.y) * span * options.yScale / 2,
       span, span * options.yScale);
     const head = pixelPoint(actor.contact.getWorldPosition(V()), options);
@@ -317,9 +334,9 @@ async function initialize() {
     try {
       for (const a of Object.values(actors)) { a.group.visible = false; if (a.equipmentPreview) a.equipmentPreview.visible = a === actor; }
       const density = clamp(options.pixelRatio || 1, 1, 3);
-      renderer.setSize(Math.ceil(600 * density), Math.ceil(420 * density), false);
-      renderer.render(scene, equipmentCamera);
-      ctx.drawImage(renderer.domElement, 0, 0, 600, 420);
+      const width = Math.ceil(600 * density), height = Math.ceil(420 * density);
+      renderBitmap(equipmentCamera, width, height);
+      ctx.drawImage(renderer.domElement, 0, renderer.domElement.height - height, width, height, 0, 0, 600, 420);
     } finally {
       for (const [group, visible] of visibility) group.visible = visible;
       for (const a of Object.values(actors)) if (a.equipmentPreview) a.equipmentPreview.visible = false;

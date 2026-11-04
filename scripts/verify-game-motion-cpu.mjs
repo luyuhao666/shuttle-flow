@@ -21,8 +21,9 @@ assert.ok(source.includes('new THREE.WebGLRenderer({ alpha: true, antialias: tru
 source=source.replace('new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true })','new globalThis.__CpuRenderer()')
   .replace('__ATHLETE_GLB__',JSON.stringify(bytes.toString('base64')));
 globalThis.__CpuRenderer=class {
-  domElement={width:0,addEventListener(){}}; info={render:{triangles:0}};
-  setClearColor(){} setSize(size){this.domElement.width=size;}
+  domElement={width:0,height:0,addEventListener(){}}; info={render:{triangles:0}}; resizeCount=0;
+  setClearColor(){} setSize(width,height){this.domElement.width=width;this.domElement.height=height;this.resizeCount++;}
+  setViewport(x,y,width,height){this.viewport={x,y,width,height};} setScissor(){} setScissorTest(){}
   render(scene){scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isSkinnedMesh)o.skeleton.update();});}
 };
 globalThis.window=new EventTarget();
@@ -118,6 +119,23 @@ try {
     api.drawRacketPreview(ctx,{opponent:true,racket:other,pixelRatio:1});
     const back=draw(preparedActor,preparedMotion,null);assert.equal(back.racketFrameColor,'2288ff');
   }
+  // Buffer reuse is a performance contract: alternating court depths must not
+  // reallocate GPU storage each frame, including after equipment previews.
+  const bufferRenderer=api.renderer,near=core.createPlayer(),far={...core.createPlayer(),y:-.65};
+  const paintPair=()=>{api.draw(ctx,{...options(far,createMotion()),opponent:true});api.draw(ctx,options(near,createMotion()));};
+  paintPair();const warmResizes=bufferRenderer.resizeCount;
+  for(let i=0;i<120;i++)paintPair();
+  assert.equal(bufferRenderer.resizeCount,warmResizes,'steady near/far frames reuse buffer capacity');
+  for(let i=0;i<120;i++){near.y=.3+i/120*.6;paintPair();}
+  assert.ok(bufferRenderer.resizeCount-warmResizes<6,'continuous depth movement does not allocate per pixel');
+  const growthResizes=bufferRenderer.resizeCount-warmResizes;
+  api.drawRacketPreview(ctx,{opponent:false,racket:equipment.racketAppearance(),pixelRatio:3});
+  paintPair();
+  assert.ok(bufferRenderer.domElement.width<=768&&bufferRenderer.domElement.height<=768,'game releases oversized equipment buffer');
+  const resumedResizes=bufferRenderer.resizeCount;
+  for(let i=0;i<60;i++)paintPair();
+  assert.equal(bufferRenderer.resizeCount,resumedResizes,'reuse continues after equipment preview');
+  results.renderBuffers={steadyFrames:120,steadyResizes:0,growthResizes,afterPreviewFrames:60,afterPreviewResizes:0};
   const actor={...core.createPlayer(),height:50},motion=createMotion(),swing={age:.05,type:'smash',overhead:true};
   assert.equal(draw(actor,motion,swing).upperPose,'Smash');actor.height=0;actor.jumpRecovery=.12;swing.age=.16;
   assert.equal(draw(actor,motion,swing).upperPose,'Smash','stroke stays consistent through landing');

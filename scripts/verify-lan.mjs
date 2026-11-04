@@ -8,6 +8,7 @@ import { join, resolve, sep, basename } from 'node:path';
 import { createRequire } from 'node:module';
 import { networkInterfaces } from 'node:os';
 import assert from 'node:assert/strict';
+import { WebSocketServer, WebSocket as RelaySocket } from 'ws';
 import { createLanServer } from '../network/server.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const artifacts = join(root, 'artifacts', 'lan');
@@ -16,7 +17,46 @@ const profile = await mkdtemp(join(artifacts, '.browser-'));
 const room = await createLanServer({ port: 0, host: '127.0.0.1', court: 'sky' });
 const electron = process.argv.includes('--electron');
 const packaged = process.argv.includes('--packaged');
+const jitter = process.argv.includes('--jitter');
+if (jitter && electron) { await room.close(); throw new Error('--jitter uses the browser test bridge; run native tests separately.'); }
 if (electron) await room.close(); // Reuse the selected free port for the actual desktop host.
+// A test-only ordered relay varies delivery delay on real WebSocket messages.
+// The production room, clients, actions and rules are unchanged.
+let relay;
+const relaySockets = new Set(), relayTimers = new Set();
+if (jitter) {
+  relay = new WebSocketServer({ host: '127.0.0.1', port: 0 });
+  await new Promise((resolve, reject) => { relay.once('listening', resolve); relay.once('error', reject); });
+  relay.on('connection', downstream => {
+    const upstream = new RelaySocket('ws://127.0.0.1:' + room.port + '/shuttle-flow');
+    relaySockets.add(downstream); relaySockets.add(upstream);
+    const pipe = (from, to) => {
+      let index = 0, deadline = 0;
+      from.on('message', bytes => {
+        const delay = [15, 65, 65, 65, 15, 15, 15, 15][index++ % 8];
+        deadline = Math.max(deadline + .1, performance.now() + delay);
+        const timer = setTimeout(() => {
+          relayTimers.delete(timer); if (to.readyState === RelaySocket.OPEN) to.send(bytes.toString());
+        }, Math.max(0, deadline - performance.now()));
+        relayTimers.add(timer);
+      });
+    };
+    // Hold the browser hello until the loopback upstream is connected.
+    const pending = [];
+    const queue = bytes => pending.push(bytes);
+    downstream.on('message', queue);
+    upstream.once('open', () => {
+      downstream.off('message', queue); pipe(downstream, upstream);
+      for (const bytes of pending) upstream.send(bytes.toString());
+    });
+    pipe(upstream, downstream);
+    for (const [from, to] of [[upstream, downstream], [downstream, upstream]]) {
+      from.on('error', () => {});
+      from.on('close', () => { relaySockets.delete(from); if (to.readyState !== RelaySocket.CLOSED) to.close(); });
+    }
+  });
+}
+const joinPort = relay ? relay.address().port : room.port;
 const binary = electron ? packaged ? join(root, 'dist/Shuttle Flow-win32-x64/Shuttle Flow.exe') : createRequire(import.meta.url)('electron') : process.env.SHUTTLE_CHECK_BROWSER || join(root, 'artifacts/browser-runtime/chrome-headless-shell-win64/chrome-headless-shell.exe');
 const children = [];
 function launch(directory) {
@@ -86,14 +126,25 @@ async function page(port, host) {
   await p.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false });
   await p.send('Emulation.setFocusEmulationEnabled', { enabled: true });
   if (host && !electron) {
-    const fakeRoom = { port: room.port, token: room.token, addresses: ['26.12.34.56', '192.168.1.2'] };
+    const fakeRoom = { port: joinPort, token: room.token, addresses: ['26.12.34.56', '192.168.1.2'] };
     await p.send('Page.addScriptToEvaluateOnNewDocument', { source: 'window.shuttleDesktop={hostLan:async options=>{window.__hostOptions=options;return ' + JSON.stringify(fakeRoom) + ';},stopLan:async()=>{}};' });
   }
   const source = await readFile(join(root, 'game.js'), 'utf8');
   const lineNumber = source.split('\n').findIndex(line => line.startsWith('function frame(now)'));
   let hooked = false;
   const bp = await p.send('Debugger.setBreakpointByUrl', { urlRegex: 'game\\.js$', lineNumber });
-  const hook = 'window.__lanCheck={client:lanClient,snapshot:()=>({state,player,opponent,match,delivery,lanActive,lanFailed,currentPanel,cue:contactCue()}),hit,jump,keys,localize:v=>i18n.setLanguage(v),bot:null,startBot(){if(this.bot)return;this.bot=setInterval(()=>{const v=lanClient.sample();if(!v||v.phase!=="playing"||state!=="playing")return;keys.clear();if(v.stage==="serve"){if(v.match.server==="player"&&v.still.every(n=>n>.2))hit("clear");return;}if(v.delivery?.phase!=="incoming")return;const target=isInterceptable(v.delivery)?incomingPosition({...v.delivery,age:v.delivery.age+.12}):v.delivery.target;const a=player;if(Math.abs(target.x-a.x)>.012)keys.add(target.x>a.x?"KeyD":"KeyA");if(Math.abs(target.y-a.y)>.012)keys.add(target.y>a.y?"KeyS":"KeyW");const pred=contactPrediction();if(pred&&assessHit(pred.player,pred.ball).grade)hit("clear");},12);},stopBot(){clearInterval(this.bot);this.bot=null;keys.clear();}};';
+  let hook = 'window.__lanCheck={client:lanClient,snapshot:()=>({state,player,opponent,match,delivery,lanActive,lanFailed,currentPanel,cue:contactCue()}),hit,jump,keys,localize:v=>i18n.setLanguage(v),bot:null,startBot(){if(this.bot)return;this.bot=setInterval(()=>{const v=lanClient.sample();if(!v||v.phase!=="playing"||state!=="playing")return;keys.clear();if(v.stage==="serve"){if(v.match.server==="player"&&v.still.every(n=>n>.2))hit("clear");return;}if(v.delivery?.phase!=="incoming")return;const target=isInterceptable(v.delivery)?incomingPosition({...v.delivery,age:v.delivery.age+.12}):v.delivery.target;const a=player;if(Math.abs(target.x-a.x)>.012)keys.add(target.x>a.x?"KeyD":"KeyA");if(Math.abs(target.y-a.y)>.012)keys.add(target.y>a.y?"KeyS":"KeyW");const pred=contactPrediction();if(pred&&assessHit(pred.player,pred.ball).grade)hit("clear");},12);},stopBot(){clearInterval(this.bot);this.bot=null;keys.clear();}};';
+  if (jitter) hook += `
+    window.__visualAudit={frames:0,rawRewinds:0,displayRewinds:0};
+    const auditDraw=draw;let auditPrevious=null;
+    draw=(...args)=>{auditDraw(...args);if(!lanActive)return;
+      const raw=lanClient.sample(),shown=lanClient.presentation();
+      if(raw?.phase!=='playing'||raw.stage!=='rally'){auditPrevious=null;return;}
+      const key=raw.round+':'+raw.flightId;
+      if(auditPrevious?.key===key){const a=window.__visualAudit;a.frames++;
+        if(raw.delivery.age<auditPrevious.raw-.00001)a.rawRewinds++;
+        if(shown.delivery.age<auditPrevious.shown-.00001)a.displayRewinds++;}
+      auditPrevious={key,raw:raw.delivery.age,shown:shown.delivery.age};};`;
   p.on('Debugger.paused', async e => {
     try {
       const result = await p.send('Debugger.evaluateOnCallFrame', { callFrameId: e.callFrames[0].callFrameId,
@@ -113,7 +164,7 @@ async function page(port, host) {
   await until(() => p.evaluate('!!globalThis.ShuttleAthletes?.ready'), '3D athletes', 20000);
   return p;
 }
-const report = { runtime: electron ? packaged ? 'packaged-electron' : 'source-electron' : 'chromium' };
+const report = { runtime: electron ? packaged ? 'packaged-electron' : 'source-electron' : jitter ? 'chromium-jitter' : 'chromium' };
 async function debuggingPort(directory) {
   let result;
   await until(async () => {
@@ -141,12 +192,12 @@ try {
     await a.shot('room-' + width + 'x' + height + '-zh.png');
   }
   await a.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false });
-  await a.evaluate('__lanCheck.localize("en");document.getElementById("lan-port").value=' + room.port);
+  await a.evaluate('__lanCheck.localize("en");document.getElementById("lan-port").value=' + joinPort);
   await a.click('lan-create');
   await until(() => a.evaluate('__lanCheck.client.connected'), 'host connected');
   const address = electron ? Object.values(networkInterfaces()).flat().find(n => n?.family === 'IPv4' && !n.internal && !n.address.startsWith('169.254.'))?.address ?? '127.0.0.1' : '127.0.0.1';
   report.joinAddress = address;
-  await b.evaluate('document.getElementById("lan-address").value=' + JSON.stringify(address + ':' + room.port));
+  await b.evaluate('document.getElementById("lan-address").value=' + JSON.stringify(address + ':' + joinPort));
   await b.click('lan-join');
   try { await until(() => b.evaluate('__lanCheck.client.connected'), 'guest connected'); }
   catch (error) { console.error(JSON.stringify({ address, status: await b.evaluate('document.getElementById("lan-status").textContent'), diagnostics, errors })); throw error; }
@@ -201,6 +252,13 @@ try {
   await b.click('lan-leave'); await b.click('choose-practice'); await b.click('start');
   await until(() => b.evaluate('__lanCheck.snapshot().state==="playing"&&!__lanCheck.snapshot().lanActive'), 'single player after leaving');
   report.offlineAfterLeave = true; assert.deepEqual(errors, []);
+  if (jitter) {
+    report.presentation = await Promise.all([a, b].map(p => p.evaluate('window.__visualAudit')));
+    for (const sample of report.presentation) {
+      assert.ok(sample.frames > 100, 'enough live frames sampled under real delivery jitter');
+      assert.equal(sample.displayRewinds, 0, 'actual court paint never rewinds a flight');
+    }
+  }
   report.errors = errors;
   await writeFile(join(artifacts, report.runtime + '-report.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report));
@@ -208,6 +266,9 @@ try {
   for (const c of clients) c.socket.close();
   for (const child of children) child.kill();
   await room.close();
+  for (const timer of relayTimers) clearTimeout(timer);
+  for (const socket of relaySockets) socket.terminate();
+  if (relay) await new Promise(resolve => relay.close(resolve));
   await Promise.all(children.map(child => new Promise(resolve => { if (child.exitCode !== null) resolve(); else { child.once('exit', resolve); setTimeout(resolve, 3000); } })));
   const cleanup = resolve(profile);
   if (!cleanup.startsWith(resolve(artifacts) + sep) || !basename(cleanup).startsWith('.browser-')) throw new Error('Invalid QA cleanup path');

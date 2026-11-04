@@ -1341,26 +1341,45 @@ function venuePanel(x, y, w, h, fill, stroke = '#779b8c55', radius = 5) {
   ctx.beginPath(); ctx.roundRect(x, y, w, h, radius); ctx.fillStyle = fill; ctx.fill();
   if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
 }
+function venueSoftShadow(x, y, rx, ry, opacity = .18) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(rx, ry);
+  const shade = ctx.createRadialGradient(0, 0, .06, 0, 0, 1);
+  shade.addColorStop(0, 'rgba(35,61,52,' + opacity + ')');
+  shade.addColorStop(.42, 'rgba(35,61,52,' + opacity * .65 + ')');
+  shade.addColorStop(1, 'rgba(35,61,52,0)');
+  ellipse(0, 0, 1, 1, shade); ctx.restore();
+}
 function drawVenueBench(x, y) {
   ctx.save(); ctx.translate(x, y);
-  ellipse(100, 28, 106, 10, '#08282d55');
+  venueSoftShadow(105, 27, 116, 13, .20);
   for (const leg of [16, 171]) {
-    path([{ x: leg, y: -1 }, { x: leg + 7, y: -1 }, { x: leg + 11, y: 27 }, { x: leg + 4, y: 27 }], '#213d40', '#50716c', 1);
-    line({ x: leg - 2, y: 27 }, { x: leg + 15, y: 27 }, '#789486', 2);
+    path([{x:leg,y:-6},{x:leg+6,y:-6},{x:leg+10,y:26},{x:leg+4,y:26}], '#53685f', '#84938a', .8);
+    line({x:leg+1,y:1},{x:leg+5,y:23}, '#acb8a9', .8);
+    venuePanel(leg-3, 24, 20, 3, '#4c6057', null, 1);
+    venueSoftShadow(leg+6, 27, 14, 3, .24);
   }
-  line({ x: 23, y: 18 }, { x: 179, y: 18 }, '#345551', 3);
-  const wood = ctx.createLinearGradient(0, -29, 0, 8); wood.addColorStop(0, '#dbc7a2'); wood.addColorStop(1, '#ad9772');
-  venuePanel(0, -29, 200, 13, wood, '#c4b59166', 2);
-  venuePanel(0, -13, 200, 10, wood, '#c4b59155', 2);
-  path([{ x: -5, y: -1 }, { x: 197, y: -1 }, { x: 207, y: 8 }, { x: 3, y: 8 }], '#c6ae86', '#e7d9b977');
-  path([{ x: 3, y: 8 }, { x: 207, y: 8 }, { x: 207, y: 12 }, { x: 3, y: 12 }], '#968464');
-  for (const grain of [-25, -20, -9]) line({ x: 6, y: grain }, { x: 193, y: grain + .4 }, '#e3cfab22', .7);
-  for (const bolt of [12, 188]) for (const row of [-23, -8]) ellipse(bolt, row, 1, 1, '#4d5548');
+  line({x:24,y:18},{x:178,y:18}, '#718073', 2.4);
+  for (const [row, h] of [[-29,10],[-15,9]]) {
+    const wood = ctx.createLinearGradient(0, row, 0, row+h);
+    wood.addColorStop(0, '#e7d6b6'); wood.addColorStop(.45, '#d4be98'); wood.addColorStop(1, '#b69f79');
+    venuePanel(0, row, 200, h, wood, '#a2917055', 1.5);
+    line({x:3,y:row+1},{x:197,y:row+1}, '#f9ecd099', .9);
+    for (let i=0;i<3;i++) {
+      ctx.beginPath(); ctx.moveTo(5,row+3+i*2);
+      ctx.bezierCurveTo(52,row+2+i*2,127,row+5+i*2,194,row+3+i*2);
+      ctx.strokeStyle = i%2 ? '#8c785819' : '#fff4d524'; ctx.lineWidth=.6; ctx.stroke();
+    }
+    for (const bolt of [12,188]) { ellipse(bolt,row+5,1.2,1.2,'#8c8168'); ellipse(bolt-.2,row+4.7,.5,.4,'#e9e5cc'); }
+  }
+  path([{x:-4,y:-1},{x:197,y:-1},{x:206,y:7},{x:3,y:7}], '#dfc8a1', '#e9dabd', .7);
+  path([{x:3,y:7},{x:206,y:7},{x:206,y:11},{x:3,y:11}], '#ac9570');
+  line({x:1,y:3},{x:201,y:3}, '#b39a7455', .8);
+  line({x:4,y:7},{x:204,y:7}, '#f9ebcd99', .8);
   ctx.restore();
 }
 function drawVenueBag(x, y, color, accent) {
   ctx.save(); ctx.translate(x, y);
-  ellipse(1, 6, 35, 8, '#08292d77');
+  venueSoftShadow(3, 6, 39, 10, .24);
   ctx.beginPath(); ctx.moveTo(-24, -19); ctx.quadraticCurveTo(-27, -41, 9, -38); ctx.quadraticCurveTo(27, -38, 28, -20);
   ctx.strokeStyle = '#17393c'; ctx.lineWidth = 4; ctx.stroke();
   const fabric = ctx.createLinearGradient(-30, -25, 32, 7); fabric.addColorStop(0, accent); fabric.addColorStop(.22, color); fabric.addColorStop(1, '#183b40');
@@ -1374,7 +1393,7 @@ function drawVenueBag(x, y, color, accent) {
   ctx.restore();
 }
 function drawVenueBottle(x, y, color) {
-  ctx.save(); ctx.translate(x, y); ellipse(0, 3, 7, 2.5, '#08292d66');
+  ctx.save(); ctx.translate(x, y); venueSoftShadow(1, 3, 9, 3, .24);
   const plastic = ctx.createLinearGradient(-5, 0, 5, 0); plastic.addColorStop(0, '#bdd7c6'); plastic.addColorStop(.3, '#d8e6d2'); plastic.addColorStop(1, color);
   venuePanel(-5, -20, 10, 22, plastic, '#183f4188', 3); venuePanel(-3, -25, 6, 6, color, null, 1.5);
   venuePanel(-4.5, -12, 9, 8, color, null, 1); line({ x: -2, y: -18 }, { x: -2, y: -14 }, '#f0f5ddaa', 1);
@@ -1382,206 +1401,273 @@ function drawVenueBottle(x, y, color) {
 }
 function drawVenueFixtures() {
   ctx.save();
-  // Props stay in the rear apron, outside the court and the moving contact cues.
-  // An exit door and an equipment board give the side walls distinct uses.
-  venuePanel(64, 74, 72, 78, '#a3beb0', '#7a9c8c88', 2);
-  venuePanel(70, 81, 60, 70, '#c3d8c8', '#eaf4e499', 1);
-  venuePanel(75, 88, 50, 33, '#b0cdd0', '#759b9688', 1);
-  line({ x: 119, y: 130 }, { x: 126, y: 130 }, '#c5d7bd', 2);
-  venuePanel(83, 62, 34, 9, '#abc998', null, 2);
-  venuePanel(1004, 71, 124, 73, '#d7e3d7', '#8ba69777', 4);
+  // Recessed joinery and equipment stay outside the playing area and its cues.
+  venuePanel(62, 73, 76, 81, '#778f7e2b', null, 1);
+  venuePanel(64, 74, 72, 78, '#a3b7a5', '#f3f5e7', 1);
+  const door=ctx.createLinearGradient(70,81,130,151);
+  door.addColorStop(0,'#d3dfcd');door.addColorStop(1,'#b5c9b5');
+  venuePanel(70, 81, 60, 70, door, '#edf2e1', 1);
+  venuePanel(75, 88, 50, 33, '#97b4b199', '#8da795', 1);
+  const glass=ctx.createLinearGradient(75,88,125,121);
+  glass.addColorStop(0,'#dbe9dd');glass.addColorStop(1,'#b9d3c755');
+  ctx.fillStyle=glass;ctx.fillRect(77,90,46,29);
+  line({x:80,y:91},{x:102,y:91},'#f6f9e780',.8);
+  venuePanel(74,143,52,5,'#9fb49f','#dce6ce',.5);
+  line({x:76,y:151},{x:129,y:151},'#6d897466',1);
+  venuePanel(117,127,10,3,'#718c79','#d3dfc8',.7);
+  venuePanel(83,62,34,9,'#a5be94','#e7eed688',1.5);
+  line({x:95,y:66},{x:107,y:66},'#f5fae3bb',1.2);
+  path([{x:104,y:64},{x:107,y:66},{x:104,y:68}],null,'#f5fae3bb',.9);
+  venuePanel(1005,73,124,73,'#708e7720',null,3);
+  venuePanel(1004,71,124,73,'#dfe7d8','#a8bda577',3);
+  line({x:1010,y:76},{x:1121,y:76},'#fafbec99',1);
+  line({x:1017,y:91},{x:1089,y:91},'#b2c4ad',2);
   for (const x of [1026, 1053, 1080]) {
-    ellipse(x, 105, 7, 10, '#f4faf022', '#617f7199', 1.3);
-    line({ x, y: 115 }, { x, y: 135 }, '#617f7199', 1.3);
-    line({ x: x - 4, y: 104 }, { x: x + 4, y: 104 }, '#617f7166', .6);
-    line({ x, y: 98 }, { x, y: 112 }, '#617f7166', .6);
+    ellipse(x+1,106,7,10,'#52735e0d');
+    ellipse(x,105,6.5,9.5,null,'#6f8d77aa',1.1);
+    for(const dx of [-2,2]) line({x:x+dx,y:98},{x:x+dx,y:112},'#879c7c55',.45);
+    for(const dy of [-3,0,3]) line({x:x-4,y:105+dy},{x:x+4,y:105+dy},'#879c7c55',.45);
+    line({x,y:115},{x,y:134},'#6f8d77aa',1.1);
+    line({x,y:127},{x,y:135},'#597a64',2.5);
+    ellipse(x,92,1.3,1.3,'#8aa082');
   }
-  venuePanel(1095, 98, 17, 34, '#52716a', '#9ebdae55', 2);
-  line({ x: 1098, y: 104 }, { x: 1109, y: 104 }, '#d0dec088', 1);
-  ellipse(978, 93, 17, 17, '#aec3b5', '#819e8866', 2); ellipse(978, 93, 13, 13, '#f8faef');
-  for (const [dx, dy] of [[0,-10],[10,0],[0,10],[-10,0]]) line({ x: 978 + dx * .8, y: 93 + dy * .8 }, { x: 978 + dx, y: 93 + dy }, '#44625a', 1);
-  line({ x: 978, y: 93 }, { x: 974, y: 87 }, '#294d48', 1.5); line({ x: 978, y: 93 }, { x: 985, y: 91 }, '#294d48', 1.1);
+  venuePanel(1095,98,17,34,'#829b83','#b7c7ad',1.5);
+  for(const y of [103,108,113]) line({x:1098,y},{x:1109,y},'#dce6ce88',.7);
+  ellipse(979,94,17,17,'#597d6222');
+  ellipse(978,93,16,16,'#b6c6b1','#8ba284',1);
+  ellipse(978,93,13.5,13.5,'#fafaf0','#e3e7d6',.6);
+  for(let i=0;i<12;i++) {
+    const a=i*Math.PI/6, inner=i%3===0?9.5:11;
+    line({x:978+Math.sin(a)*inner,y:93-Math.cos(a)*inner},{x:978+Math.sin(a)*12,y:93-Math.cos(a)*12},'#5f7b64',i%3===0?1:.55);
+  }
+  line({x:978,y:93},{x:974,y:87},'#3f6050',1.3);
+  line({x:978,y:93},{x:985,y:91},'#3f6050',.9);
+  ellipse(978,93,1.1,1.1,'#5a7860');
   drawVenueBench(44, 199); drawVenueBench(953, 199);
   drawVenueBag(106, 235, '#416966', '#8da98c'); drawVenueBag(1105, 236, '#495c70', '#a4b2b4');
   drawVenueBottle(166, 217, '#64857a'); drawVenueBottle(992, 217, '#819373');
+  // A folded towel adds a small lived-in detail, with no motion near the shuttle.
+  path([{x:1000,y:197},{x:1027,y:197},{x:1032,y:202},{x:1005,y:202}],'#f4f0dc','#d3d5bc',.6);
+  path([{x:1005,y:202},{x:1032,y:202},{x:1032,y:207},{x:1005,y:207}],'#dedfc7');
+  for(const x of [1009,1012]) line({x,y:199},{x:x+2,y:207},'#9aaf9655',.8);
   ctx.save(); ctx.translate(218, 245); ctx.rotate(-.22);
   ellipse(0, 1, 8, 3, '#08292d66'); venuePanel(-5, -37, 10, 37, '#c7c9ad', '#596f64', 2);
   venuePanel(-5, -31, 10, 16, '#607a6a', null, 0); line({ x: -2, y: -12 }, { x: -2, y: -4 }, '#f0edcc99', 1); ctx.restore();
   ctx.restore();
 }
 function drawVenueWindows() {
-  // High glazing brings the sky into view without changing the court camera.
-  for (const x of [164, 364, 564, 764]) {
-    venuePanel(x - 3, 32, 190, 82, '#a8c3b5', '#edf6ea', 2);
-    ctx.save(); ctx.beginPath(); ctx.rect(x + 3, 38, 178, 69); ctx.clip();
-    const sky = ctx.createLinearGradient(0, 38, 0, 107);
-    sky.addColorStop(0, '#d3ebf3'); sky.addColorStop(.62, '#eaf5ee'); sky.addColorStop(1, '#d9e8c9');
-    ctx.fillStyle = sky; ctx.fillRect(x + 3, 38, 178, 69);
-    ellipse(x + 50, 59, 47, 8, '#ffffff70'); ellipse(x + 130, 50, 34, 6, '#ffffff50');
-    for (let i = 0; i < 10; i++) {
-      const cx = x + i * 21, cy = 106 - 7 * Math.sin(i * 1.8 + x);
-      line({ x: cx, y: cy }, { x: cx, y: 115 }, '#94b89a66', 2);
-      ellipse(cx, cy, 17, 10 + 3 * Math.sin(i), '#b1cea280');
+  // Recessed glazing and thin frames keep the scoreboard's pale backdrop quiet.
+  for (const x of [164,364,564,764]) {
+    venuePanel(x-6, 30, 196, 88, '#94afa333', null, 1);
+    venuePanel(x-3, 32, 190, 82, '#a9bdb1', '#f8faf1', 1);
+    ctx.save(); ctx.beginPath(); ctx.rect(x+3,38,178,69); ctx.clip();
+    const sky = ctx.createLinearGradient(0,38,0,107);
+    sky.addColorStop(0,'#d8eaf0'); sky.addColorStop(.62,'#eef5ed'); sky.addColorStop(1,'#dce8cf');
+    ctx.fillStyle=sky; ctx.fillRect(x+3,38,178,69);
+    ellipse(x+48,57,53,6,'#ffffff55'); ellipse(x+132,46,38,5,'#ffffff40');
+    for (let i=0;i<12;i++) {
+      const cx=x+i*18, cy=108-5*Math.sin(i*1.8+x);
+      line({x:cx,y:cy},{x:cx+1,y:116},'#89a78b35',1.4);
+      ellipse(cx,cy,15,8+2*Math.sin(i),'#a8c49b60');
+      ellipse(cx-4,cy-3,10,5,'#c0d5ab66');
     }
-    path([{ x: x + 18, y: 38 }, { x: x + 51, y: 38 }, { x: x + 108, y: 107 }, { x: x + 75, y: 107 }], '#ffffff2e');
+    const reveal=ctx.createLinearGradient(0,38,0,55);
+    reveal.addColorStop(0,'#54736724'); reveal.addColorStop(1,'#54736700');
+    ctx.fillStyle=reveal; ctx.fillRect(x+3,38,178,17);
+    path([{x:x+18,y:38},{x:x+36,y:38},{x:x+94,y:107},{x:x+76,y:107}], '#ffffff20');
     ctx.restore();
-    line({ x: x + 91, y: 36 }, { x: x + 91, y: 110 }, '#f5faf0', 5);
-    line({ x: x + 1, y: 74 }, { x: x + 183, y: 74 }, '#f5faf0', 4);
-    line({ x: x - 3, y: 114 }, { x: x + 187, y: 114 }, '#88a59355', 2);
+    for (const mullion of [x+91]) {
+      line({x:mullion-2,y:36},{x:mullion-2,y:110},'#819d8d55',1);
+      line({x:mullion,y:36},{x:mullion,y:110},'#f8faf1',4);
+      line({x:mullion+2,y:38},{x:mullion+2,y:108},'#c5d5c6',.8);
+    }
+    line({x:x+1,y:74},{x:x+183,y:74},'#78978644',5);
+    line({x:x+1,y:73},{x:x+183,y:73},'#f6faf1',3);
+    path([{x:x-6,y:113},{x:x+187,y:113},{x:x+191,y:117},{x:x-4,y:117}], '#e1e7d8');
+    line({x:x-4,y:117},{x:x+190,y:117},'#7e9b8666',1);
+    line({x:x,y:114},{x:x+185,y:114},'#fffdf3',1);
+    // Small opening hinges supply scale without introducing background text.
+    for (const hinge of [x+9,x+174]) venuePanel(hinge,70,2,7,'#9db09f',null,.5);
   }
 }
 function drawCourtBackdrop() {
-  const style = courtStyle();
-  const wall = ctx.createLinearGradient(0, 0, 0, 190); wall.addColorStop(0, style.wall[0]); wall.addColorStop(1, style.wall[1]); ctx.fillStyle = wall; ctx.fillRect(0, 0, 1200, 720);
-  for (let i = 0; i <= 8; i++) {
-    const x = 35 + i * 150;
-    line({ x, y: 0 }, { x, y: 171 }, '#ffffff70', 3);
-    line({ x: x + 3, y: 0 }, { x: x + 3, y: 171 }, '#8caa9633', 2);
+  const style=courtStyle();
+  const wall=ctx.createLinearGradient(0,0,0,170);
+  wall.addColorStop(0,style.wall[0]); wall.addColorStop(1,style.wall[1]);
+  ctx.fillStyle=wall; ctx.fillRect(0,0,1200,720);
+  // Plaster bays, ceiling reveals and slim luminaires share one daylight palette.
+  for (let i=0;i<=8;i++) {
+    const x=35+i*150;
+    const reveal=ctx.createLinearGradient(x-3,0,x+6,0);
+    reveal.addColorStop(0,'#50735d00'); reveal.addColorStop(.5,'#50735d12'); reveal.addColorStop(1,'#ffffff00');
+    ctx.fillStyle=reveal; ctx.fillRect(x-3,10,9,140);
+    line({x,y:10},{x,y:149},'#ffffff70',1.4);
+  }
+  const cornice=ctx.createLinearGradient(0,0,0,21);
+  cornice.addColorStop(0,'#b7c8b9'); cornice.addColorStop(.42,'#e3ebdf'); cornice.addColorStop(.6,'#f8faf0'); cornice.addColorStop(1,'#8da69100');
+  ctx.fillStyle=cornice; ctx.fillRect(0,0,1200,21);
+  for (const x of [230,600,970]) {
+    for (const dx of [-28,28]) line({x:x+dx,y:7},{x:x+dx,y:17},'#8fa292',.9);
+    venuePanel(x-40,15,80,9,'#b5c5b8','#91a794',1.5);
+    venuePanel(x-36,16,72,6,'#dbe4d6',null,1);
+    ctx.fillStyle='#fffef5'; ctx.fillRect(x-32,18,64,2.4);
+    line({x:x-32,y:23},{x:x+32,y:23},'#849c8744',.7);
   }
   drawVenueWindows();
-  // Pale timber absorbs glare while the upper windows supply broad daylight.
-  const timber = ctx.createLinearGradient(0, 118, 0, 150);
-  timber.addColorStop(0, '#dcd6bbaa'); timber.addColorStop(1, '#b7c5ad88');
-  ctx.fillStyle = timber; ctx.fillRect(0, 118, 1200, 32);
-  for (let x = 0; x < 1200; x += 9) {
-    line({ x, y: 119 }, { x, y: 149 }, '#78947c33', 1);
-    line({ x: x + 2, y: 120 }, { x: x + 2, y: 148 }, '#fffce433');
+  const timber=ctx.createLinearGradient(0,120,0,150);
+  timber.addColorStop(0,'#e3d8bd'); timber.addColorStop(.6,'#d6ccb1'); timber.addColorStop(1,'#bfc3a8');
+  ctx.fillStyle=timber; ctx.fillRect(0,121,1200,29);
+  for (let x=0;x<1200;x+=8) {
+    line({x,y:122},{x,y:148},'#7f8e6f30',1);
+    line({x:x+2,y:123},{x:x+2,y:148},'#fff8de44',.8);
   }
-  line({ x: 0, y: 118 }, { x: 1200, y: 118 }, '#f9f9e999', 2);
-  line({ x: 0, y: 8 }, { x: 1200, y: 8 }, '#bacdc166', 6);
-  for (const x of [230, 600, 970]) {
-    for (const dx of [-28, 28]) line({ x: x + dx, y: 7 }, { x: x + dx, y: 17 }, '#93ad9e', 1);
-    venuePanel(x - 39, 15, 78, 9, '#d0ddd1', '#9cb3a0', 2);
-    ctx.fillStyle = '#fffef5'; ctx.fillRect(x - 32, 18, 64, 3);
+  line({x:0,y:120},{x:1200,y:120},'#fffdf099',1.5);
+  // The lower wall's recessed ventilation slots remain behind the benches.
+  for (const x of [272,862]) {
+    venuePanel(x,128,65,13,'#c1c8b1','#eef0db66',1);
+    for(let y=131;y<140;y+=3) line({x:x+5,y},{x:x+60,y},'#7c927960',.7);
   }
-  const apron = ctx.createLinearGradient(0, 135, 0, 720); apron.addColorStop(0, style.apron[0]); apron.addColorStop(.5, style.apron[1]); apron.addColorStop(1, style.apron[2]); ctx.fillStyle = apron; ctx.fillRect(0, 150, 1200, 570);
-  line({ x: 0, y: 150 }, { x: 1200, y: 150 }, '#f7fae8aa', 3);
-  line({ x: 0, y: 155 }, { x: 1200, y: 155 }, '#6e967944', 2);
-  // Surrounding floor joints follow the same camera plane as the playing mat.
-  for (const x of [-1.6, -1.15, -.7, -.25, 1.25, 1.7, 2.15, 2.6]) courtLine(x, -1.18, x, 1.2, '#5c89672c', 1);
-  for (const y of [-.95, -.5, 0, .5, .94, 1.14]) courtLine(-2, y, 3, y, '#f9fff036', 1);
-  path([{ x: 0, y: 160 }, { x: 154, y: 160 }, { x: 608, y: 720 }, { x: 374, y: 720 }], '#fffce72c');
-  path([{ x: 232, y: 160 }, { x: 320, y: 160 }, { x: 906, y: 720 }, { x: 764, y: 720 }], '#fffce718');
-  for (const x of [200, 1000]) {
-    const light = ctx.createRadialGradient(x, 238, 0, x, 238, 310);
-    light.addColorStop(0, '#fffbe834'); light.addColorStop(1, '#fffbe800');
-    ctx.fillStyle = light; ctx.fillRect(x - 310, 160, 620, 460);
+  const apron=ctx.createLinearGradient(0,150,0,720);
+  apron.addColorStop(0,style.apron[0]); apron.addColorStop(.5,style.apron[1]); apron.addColorStop(1,style.apron[2]);
+  ctx.fillStyle=apron; ctx.fillRect(0,150,1200,570);
+  ctx.fillStyle='#e6ddc83d'; ctx.fillRect(0,150,1200,570);
+  const skirting=ctx.createLinearGradient(0,148,0,164);
+  skirting.addColorStop(0,'#758d7444'); skirting.addColorStop(.18,'#a9b69d66'); skirting.addColorStop(.24,'#f9f6e7aa'); skirting.addColorStop(1,'#6f8a6c00');
+  ctx.fillStyle=skirting; ctx.fillRect(0,148,1200,16);
+  // Pale sprung-floor boards converge on the unchanged projection.
+  for(let i=-18;i<25;i++) {
+    const x=i*.12;
+    if(i%3===0) path([project(x,-1.16),project(x+.12,-1.16),project(x+.12,1.2),project(x,1.2)],'#fff9e411');
+    courtLine(x,-1.16,x,1.2,'#748f6c1d',.75);
+    for(let j=0;j<3;j++) {
+      const y=-.95+j*.85+((i+18)%3)*.23;
+      courtLine(x,y,x+.12,y,'#7f947321',.75);
+    }
   }
-  for (const x of [115, 1085]) {
-    path([{ x: x - 86, y: 170 }, { x: x + 86, y: 170 }, { x: x + 124, y: 268 }, { x: x - 124, y: 268 }], '#60897320');
-    line({ x: x - 74, y: 265 }, { x: x + 74, y: 265 }, '#72917a33');
+  for (const [x,y,rx,ry] of [[220,261,320,170],[920,417,420,230]]) {
+    ctx.save(); ctx.translate(x,y); ctx.scale(1,ry/rx);
+    const wash=ctx.createRadialGradient(0,0,10,0,0,rx);
+    wash.addColorStop(0,'#fff9dc40'); wash.addColorStop(.5,'#fff9dc1f'); wash.addColorStop(1,'#fff9dc00');
+    ellipse(0,0,rx,rx,wash); ctx.restore();
   }
   drawVenueFixtures();
-  // Thin bevel and contact shadow anchor the mat without a heavy black frame.
-  for (const [pad, alpha] of [[.075, '0d'], [.064, '18'], [.053, '30']]) {
-    path([project(-pad, -1.055), project(1 + pad, -1.055), project(1 + pad, 1.055), project(-pad, 1.055)], '#031b23' + alpha);
+  // A thin rolled edge and feathered contact shadow replace the broad dark frame.
+  for(const [pad,alpha] of [[.067,'08'],[.058,'10'],[.050,'1b']])
+    path([project(-pad,-1.05),project(1+pad,-1.05),project(1+pad,1.05),project(-pad,1.05)],'#294e40'+alpha);
+  path([project(-.045,-1.04),project(1.045,-1.04),project(1.045,1.04),project(-.045,1.04)],style.edge);
+  courtLine(-.043,-1.038,1.043,-1.038,style.trim+'80',1);
+  courtLine(-.043,-1.038,-.043,1.038,style.line+'3d',1.1);
+  courtLine(1.043,-1.038,1.043,1.038,style.seam+'66',1.3);
+  courtLine(-.044,1.045,1.044,1.045,'#274d4055',2.4);
+  courtLine(-.039,1.031,1.039,1.031,style.trim+'75',1);
+  const floor=ctx.createLinearGradient(0,179,0,645);
+  floor.addColorStop(0,style.floor[0]); floor.addColorStop(.48,style.floor[1]); floor.addColorStop(1,style.floor[2]);
+  const court=[project(0,-1),project(1,-1),project(1,1),project(0,1)];
+  path(court,floor);
+  ctx.save(); path(court); ctx.clip();
+  // Six matte vinyl rolls: fine welds, restrained color variation and fixed grain.
+  for(let i=0;i<6;i++) {
+    path([project(i/6,-1),project((i+1)/6,-1),project((i+1)/6,1),project(i/6,1)],i%2?'#ffffff03':'#163d2e03');
+    if(i) {
+      courtLine(i/6,-1,i/6,1,style.seam+'24',.75);
+      courtLine(i/6+.0012,-1,i/6+.0012,1,style.line+'12',.65);
+    }
   }
-  path([project(-.045, -1.04), project(1.045, -1.04), project(1.045, 1.04), project(-.045, 1.04)], style.edge, style.trim + '5e', 2);
-  courtLine(-.044, 1.045, 1.044, 1.045, '#031e2855', 3);
-  courtLine(-.039, 1.031, 1.039, 1.031, style.trim + '42', 1);
-  const floor = ctx.createLinearGradient(0, 179, 0, 645); floor.addColorStop(0, style.floor[0]); floor.addColorStop(.48, style.floor[1]); floor.addColorStop(1, style.floor[2]);
-  const court = [project(0, -1), project(1, -1), project(1, 1), project(0, 1)];
-  path(court, floor);
-  ctx.save(); ctx.beginPath(); court.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.clip();
-  path([project(0, -1), project(1, -1), project(1, 0), project(0, 0)], style.shadow + '0c');
-  path([project(0, .31), project(1, .31), project(1, .84), project(0, .84)], '#d7f7bc09');
-  // Wide welded rolls, with fixed fine grain rather than animated noise.
-  for (let i = 1; i < 6; i++) {
-    courtLine(i / 6, -1, i / 6, 1, style.seam + '29', .9);
-    courtLine(i / 6 + .0012, -1, i / 6 + .0012, 1, style.line + '0b', .7);
+  let grain=713;
+  const random=()=>{grain=(Math.imul(grain,1664525)+1013904223)>>>0;return grain/4294967296;};
+  for(let i=0;i<18000;i++) {
+    const p=project(random(),random()*2-1), size=(.35+random()*.8)*p.scale;
+    ctx.fillStyle=i%3?'#eff8df0c':'#173d3014'; ctx.fillRect(p.x,p.y,size,size*.55);
   }
-  let grain = 713;
-  const random = () => { grain = (Math.imul(grain, 1664525) + 1013904223) >>> 0; return grain / 4294967296; };
-  for (let i = 0; i < 12000; i++) {
-    const p = project(random(), random() * 2 - 1), size = (.35 + random() * .55) * p.scale;
-    ctx.fillStyle = i % 2 ? '#f0f3d409' : '#092e3510'; ctx.fillRect(p.x, p.y, size, size * .55);
+  for(let i=0;i<42;i++) {
+    const p=project(.12+random()*.76,-.85+random()*1.7);
+    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale,p.scale*.35); ctx.rotate(random()-.5);
+    ctx.beginPath(); ctx.arc(0,0,4+random()*8,.2,1.8);
+    ctx.strokeStyle=i%3?style.seam+'18':style.line+'17'; ctx.lineWidth=.7; ctx.stroke(); ctx.restore();
   }
-  for (let i = 0; i < 36; i++) {
-    const x = .12 + random() * .76, y = -.85 + random() * 1.7, p = project(x, y);
-    ctx.save(); ctx.translate(p.x, p.y); ctx.scale(p.scale, p.scale * .35); ctx.rotate(random() - .5);
-    ctx.beginPath(); ctx.arc(0, 0, 5 + random() * 9, .2, 1.8);
-    ctx.strokeStyle = i % 3 ? style.seam + '16' : style.line + '14'; ctx.lineWidth = .8; ctx.stroke(); ctx.restore();
+  // Broad, feathered window light preserves the rubber's matte finish.
+  for(const [x,y,rx,ry,alpha] of [[.25,-.45,290,140,'24'],[.65,.45,370,190,'1e']]) {
+    const p=project(x,y);
+    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(1,ry/rx); ctx.rotate(-.17);
+    const wash=ctx.createRadialGradient(0,0,4,0,0,rx);
+    wash.addColorStop(0,'#fff9df'+alpha); wash.addColorStop(.55,'#fff9df0e'); wash.addColorStop(1,'#fff9df00');
+    ellipse(0,0,rx,rx,wash); ctx.restore();
   }
-  path([project(-.10, -1), project(.15, -1), project(.80, 1), project(.47, 1)], '#fffcea1c');
-  path([project(.37, -1), project(.51, -1), project(1.28, 1), project(1.04, 1)], '#fffcea12');
-  for (const [x, y, r] of [[.22, -.48, 160], [.52, .15, 240], [.79, .60, 200]]) {
-    const p = project(x, y), glow = ctx.createRadialGradient(p.x, p.y, 7, p.x, p.y, r); glow.addColorStop(0, '#fff0cd17'); glow.addColorStop(1, '#fff0cd00'); ctx.fillStyle = glow; ctx.fillRect(p.x - r, p.y - r, r * 2, r * 2);
-  }
-  // Soft window reflections and gentle shadows preserve the matte sports floor.
-  for (const [x, y] of [[.21, -.64], [.5, -.53], [.79, -.64]]) {
-    const p = project(x, y);
-    ctx.save(); ctx.translate(p.x, p.y); ctx.scale(1, .25);
-    const reflection = ctx.createRadialGradient(0, 0, 2, 0, 0, 90); reflection.addColorStop(0, '#f8f0cc16'); reflection.addColorStop(.28, '#f8f0cc0d'); reflection.addColorStop(1, '#f8f0cc00');
-    ellipse(0, 0, 90, 90, reflection); ctx.restore();
-    line({ x: p.x - 24 * p.scale, y: p.y }, { x: p.x + 24 * p.scale, y: p.y }, '#f7efd016', 2 * p.scale);
-  }
+  const falloff=ctx.createLinearGradient(0,179,0,642);
+  falloff.addColorStop(0,style.shadow+'16'); falloff.addColorStop(.3,style.shadow+'00'); falloff.addColorStop(1,'#fffae407');
+  path(court,falloff); ctx.restore();
+  const lineScale=Math.min(1.6,Math.max(1,CAMERA_WIDTH/canvas.getBoundingClientRect().width));
+  // Existing markings keep their positions and contrast across all four colors.
+  path(court,null,style.seam+'66',5*lineScale);
+  for(const x of [.075,.925]) courtLine(x,-1,x,1,style.seam+'55',4*lineScale);
+  for(const y of [-.84,-.29,.29,.84]) courtLine(0,y,1,y,style.seam+'55',4*lineScale);
+  courtLine(.5,-1,.5,-.29,style.seam+'55',4*lineScale); courtLine(.5,.29,.5,1,style.seam+'55',4*lineScale);
+  path(court,null,style.line,3.5*lineScale);
+  for(const x of [.075,.925]) courtLine(x,-1,x,1,style.line,2.5*lineScale);
+  for(const y of [-.84,-.29,.29,.84]) courtLine(0,y,1,y,style.line,2.5*lineScale);
+  courtLine(.5,-1,.5,-.29,style.line,2.5*lineScale); courtLine(.5,.29,.5,1,style.line,2.5*lineScale);
+  for(const x of [0,1]) {const p=project(x,1);line({x:p.x,y:p.y},{x:p.x,y:p.y+7},style.line+'77',1.3);}
+  // The suspended mesh casts a light open shadow rather than a solid stripe.
+  ctx.save(); path(court); ctx.clip();
+  for(let i=0;i<88;i++) courtLine(-.045+1.09*i/88+.015,.055,-.045+1.09*i/88+.038,.123,'#234d3c14',.65);
+  for(const y of [.058,.074,.09,.106,.122]) courtLine(-.03,y,1.075,y,'#234d3c13',.6);
   ctx.restore();
-  const edgeShade = ctx.createLinearGradient(0, 179, 0, 642);
-  edgeShade.addColorStop(0, '#426f5810'); edgeShade.addColorStop(.5, '#426f5800'); edgeShade.addColorStop(1, '#fffce810');
-  path(court, edgeShade);
-  const lineScale = Math.min(1.6, Math.max(1, CAMERA_WIDTH / canvas.getBoundingClientRect().width));
-  // A fine pigment edge keeps white markings readable on every pastel mat.
-  path(court, null, style.seam + '66', 5 * lineScale);
-  for (const x of [.075, .925]) courtLine(x, -1, x, 1, style.seam + '55', 4 * lineScale);
-  for (const y of [-.84, -.29, .29, .84]) courtLine(0, y, 1, y, style.seam + '55', 4 * lineScale);
-  courtLine(.5, -1, .5, -.29, style.seam + '55', 4 * lineScale); courtLine(.5, .29, .5, 1, style.seam + '55', 4 * lineScale);
-  path(court, null, style.line, 3.5 * lineScale);
-  for (const x of [.075, .925]) courtLine(x, -1, x, 1, style.line, 2.5 * lineScale);
-  for (const y of [-.84, -.29, .29, .84]) courtLine(0, y, 1, y, style.line, 2.5 * lineScale);
-  courtLine(.5, -1, .5, -.29, style.line, 2.5 * lineScale); courtLine(.5, .29, .5, 1, style.line, 2.5 * lineScale);
-  for (const x of [0, 1]) { const p = project(x, 1); line({ x: p.x, y: p.y }, { x: p.x, y: p.y + 11 }, '#e3f0d9aa', 2); }
-  // A transparent, layered net shadow replaces the solid strip across the court.
-  for (const [offset, alpha] of [[.012, '08'], [.006, '0c'], [0, '14']]) {
-    path([project(-.045, .025), project(1.045, .025), project(1.045, .125 + offset), project(-.045, .125 + offset)], '#05232d' + alpha);
-  }
-  for (let i = 0; i <= 56; i++) courtLine(-.045 + 1.09 * i / 56, .03, -.04 + 1.09 * i / 56, .12, '#04242d12', .7);
-  for (const y of [.045, .067, .09, .113]) courtLine(-.045, y, 1.045, y, '#04242d13', .65);
-  // Daylight stays open at the edges; athletes and the shuttle are drawn afterwards.
-  const vignette = ctx.createRadialGradient(600, 366, 280, 600, 366, 720);
-  vignette.addColorStop(0, '#fffce800'); vignette.addColorStop(1, '#fffce812');
-  ctx.fillStyle = vignette; ctx.fillRect(0, 0, 1200, 720);
 }
 function drawNet() {
-  const left = project(-.045, 0), right = project(1.045, 0), height = 53, width = right.x - left.x;
-  const sag = t => 4 * Math.sin(Math.PI * t);
-  const top = t => left.y - height + sag(t);
-  ctx.beginPath(); ctx.moveTo(left.x, top(0)); ctx.quadraticCurveTo((left.x + right.x) / 2, top(.5) + 3, right.x, top(1)); ctx.lineTo(right.x, right.y); ctx.lineTo(left.x, left.y); ctx.closePath();
-  const mesh = ctx.createLinearGradient(0, top(0), 0, left.y); mesh.addColorStop(0, '#09232e42'); mesh.addColorStop(1, '#061f291c'); ctx.fillStyle = mesh; ctx.fill();
-  ctx.save(); ctx.beginPath(); ctx.moveTo(left.x, top(0)); ctx.quadraticCurveTo((left.x + right.x) / 2, top(.5) + 3, right.x, top(1)); ctx.lineTo(right.x, right.y); ctx.lineTo(left.x, left.y); ctx.closePath(); ctx.clip();
-  for (let i = 0; i <= 66; i++) {
-    const t = i / 66, x = left.x + width * t;
-    line({ x, y: top(t) }, { x, y: left.y }, '#0c2935a6', .9);
-    line({ x: x + .65, y: top(t) }, { x: x + .65, y: left.y }, '#dae4d93d', .5);
+  const left=project(-.045,0), right=project(1.045,0), height=53, width=right.x-left.x;
+  const top=t=>left.y-height+3.6*4*t*(1-t);
+  const bottom=t=>left.y-25+1.8*4*t*(1-t);
+  const netCurve=(at,offset=0)=>{
+    ctx.beginPath(); for(let i=0;i<=32;i++) {
+      const t=i/32,x=left.x+width*t,y=at(t)+offset;
+      if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+    }
+  };
+  ctx.save();
+  // The lower edge hangs above the floor; the top remains at its original height.
+  ctx.beginPath();
+  for(let i=0;i<=32;i++){const t=i/32; if(i)ctx.lineTo(left.x+width*t,top(t));else ctx.moveTo(left.x,top(0));}
+  for(let i=32;i>=0;i--){const t=i/32;ctx.lineTo(left.x+width*t,bottom(t));}
+  ctx.closePath(); ctx.fillStyle='#1a3b3210'; ctx.fill();
+  ctx.beginPath();
+  for(let i=0;i<=88;i++) {
+    const t=i/88,x=left.x+width*t;
+    ctx.moveTo(x,top(t)+1);ctx.lineTo(x,bottom(t));
   }
-  for (let i = 1; i <= 7; i++) {
-    const y = left.y - i * height / 8;
-    ctx.beginPath(); ctx.moveTo(left.x, y); ctx.quadraticCurveTo((left.x + right.x) / 2, y + 8 * i / 8, right.x, y);
-    ctx.strokeStyle = '#0b293395'; ctx.lineWidth = .85; ctx.stroke();
-    ctx.strokeStyle = '#dce5d83d'; ctx.lineWidth = .4; ctx.stroke();
+  ctx.strokeStyle='#173c358c';ctx.lineWidth=.72;ctx.stroke();
+  for(let row=1;row<=5;row++) {
+    netCurve(t=>top(t)+(bottom(t)-top(t))*row/5);
+    ctx.strokeStyle=row===5?'#315347aa':'#24473d80';ctx.lineWidth=row===5?1.25:.7;ctx.stroke();
+  }
+  // Layered cotton tape, a fine seam and edge bindings make the net readable.
+  netCurve(top,1.7);ctx.strokeStyle='#21483f45';ctx.lineWidth=5.8;ctx.stroke();
+  netCurve(top);ctx.strokeStyle='#f0f1df';ctx.lineWidth=4.8;ctx.stroke();
+  netCurve(top,-1.4);ctx.strokeStyle='#fffff4d9';ctx.lineWidth=1.1;ctx.stroke();
+  netCurve(top,1.2);ctx.strokeStyle='#93a58b88';ctx.lineWidth=.55;ctx.setLineDash([1,3]);ctx.stroke();ctx.setLineDash([]);
+  for(const [p,t] of [[left,0],[right,1]]) {
+    line({x:p.x,y:top(t)+2},{x:p.x,y:bottom(t)},'#d5ddca',2.1);
+    const outside=t===0?-1:1;
+    path([{x:p.x-4,y:p.y+1},{x:p.x+4,y:p.y+1},{x:p.x+19,y:p.y+10},{x:p.x+10,y:p.y+10}],'#315c4924');
+    venueSoftShadow(p.x+8,p.y+6,25,8,.20);
+    venuePanel(p.x-12,p.y-1,24,6,'#3f5e56','#85998a',1.8);
+    path([{x:p.x-12,y:p.y-1},{x:p.x+10,y:p.y-1},{x:p.x+13,y:p.y+2},{x:p.x-9,y:p.y+2}],'#71887a');
+    for(const dx of [-8,8]) ellipse(p.x+dx,p.y+3,1.1,.65,'#b9c6af');
+    const post=ctx.createLinearGradient(p.x-4,0,p.x+4,0);
+    post.addColorStop(0,'#526e63');post.addColorStop(.35,'#e3e8d9');post.addColorStop(.58,'#b5c7b6');post.addColorStop(1,'#5a786c');
+    line({x:p.x,y:p.y},{x:p.x,y:p.y-height-10},'#496457',8.5);
+    line({x:p.x,y:p.y},{x:p.x,y:p.y-height-10},post,6.8);
+    ellipse(p.x,p.y-height-10,3.7,2,'#f4f3e2','#98ad99',.7);
+    venuePanel(p.x-4.5,p.y-25,9,21,'#42675d','#86a28d77',1.5);
+    line({x:p.x-2.4,y:p.y-22},{x:p.x-2.4,y:p.y-7},'#b6cbb755',.8);
+    for(const y of [top(t),bottom(t)]) {
+      line({x:p.x-4,y},{x:p.x+4,y},'#3b5c50',2);
+      ellipse(p.x,y,1.2,1.2,'#dce3d0');
+    }
+    line({x:p.x+outside*4,y:top(t)+2},{x:p.x+outside*10,y:top(t)+5},'#b9cbb4',1.2);
+    line({x:p.x+outside*10,y:top(t)+5},{x:p.x+outside*10,y:top(t)+12},'#627f6b',1.8);
+    ellipse(p.x+outside*10,top(t)+12,1.7,1.1,'#d9e1c8');
   }
   ctx.restore();
-  line({ x: left.x, y: left.y - 1 }, { x: right.x, y: right.y - 1 }, '#bdd4c58c', 1.5);
-  ctx.beginPath(); ctx.moveTo(left.x, top(0) + 2); ctx.quadraticCurveTo((left.x + right.x) / 2, top(.5) + 5, right.x, top(1) + 2); ctx.strokeStyle = '#071e284f'; ctx.lineWidth = 6; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(left.x, top(0)); ctx.quadraticCurveTo((left.x + right.x) / 2, top(.5) + 3, right.x, top(1)); ctx.strokeStyle = '#e6e9d8'; ctx.lineWidth = 5; ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(left.x, top(0) - 1); ctx.quadraticCurveTo((left.x + right.x) / 2, top(.5) + 2, right.x, top(1) - 1); ctx.strokeStyle = '#ffffffa0'; ctx.lineWidth = 1.5; ctx.stroke();
-  for (const p of [left, right]) {
-    ellipse(p.x + 3, p.y + 5, 20, 6, '#092a3230');
-    venuePanel(p.x - 12, p.y - 1, 24, 7, '#29434b', '#879c952e', 2);
-    line({ x: p.x - 10, y: p.y }, { x: p.x + 10, y: p.y }, '#b5c6b899', 1);
-    const post = ctx.createLinearGradient(p.x - 5, 0, p.x + 5, 0); post.addColorStop(0, '#627d7e'); post.addColorStop(.45, '#e7ebdb'); post.addColorStop(1, '#607b7b');
-    line({ x: p.x, y: p.y + 1 }, { x: p.x, y: p.y - height - 11 }, '#092a32a0', 11);
-    line({ x: p.x, y: p.y }, { x: p.x, y: p.y - height - 10 }, post, 7);
-    ellipse(p.x, p.y - height - 10, 4, 3, '#eff2df');
-    venuePanel(p.x - 5, p.y - 28, 10, 24, '#284c54', '#96bbb54d', 2);
-    line({ x: p.x - 2, y: p.y - 25 }, { x: p.x - 2, y: p.y - 8 }, '#b6d8ce40', 1);
-    for (const y of [p.y - height + 1, p.y - 4]) {
-      line({ x: p.x - 5, y }, { x: p.x + 5, y }, '#1c373c', 2);
-      ellipse(p.x, y, 1.4, 1.4, '#d3dacb');
-    }
-    const outside = p === left ? -1 : 1;
-    line({ x: p.x + outside * 5, y: p.y - height + 4 }, { x: p.x + outside * 10, y: p.y - height + 8 }, '#bccdbf', 1.5);
-    line({ x: p.x + outside * 10, y: p.y - height + 8 }, { x: p.x + outside * 10, y: p.y - height + 15 }, '#93aaa1', 2);
-  }
 }
 // Shared visual proportions and palettes keep wardrobe changes separate from contact rules.
 const ATHLETE_BODY = Object.freeze({ shoulderHalf: 14, waistHalf: 10.5, hipHalf: 7, shoulderY: -51, hipY: -28, kneeY: -15, ankleY: -5, upperArm: 6.5, foreArm: 5.3, thigh: 7.4, calf: 5.8, armSegment: 18.5, headScale: .90 });
@@ -1674,27 +1760,26 @@ function drawAthleteJersey(lean, upper, crouch, turn, stroke, look, body) {
   ctx.fillText(tr(look.number), lean * .35 - turn * 3, -37 + crouch);
 }
 function drawAthleteGroundLight(height, width, look) {
-  const lift = clamp(height / 80, 0, 1), spread = 1 + lift * .26;
-  ctx.save(); ctx.translate(height * VENUE_LIGHT.castX + 2, 3 + height * VENUE_LIGHT.castY);
-  ctx.scale((27 + (1 - width) * 6) * spread, 8 * spread);
-  const soft = ctx.createRadialGradient(0, 0, .05, 0, 0, 1);
-  soft.addColorStop(0, `rgba(8,42,45,${.29 - lift * .16})`);
-  soft.addColorStop(.45, `rgba(8,42,45,${.20 - lift * .12})`); soft.addColorStop(1, 'rgba(8,42,45,0)');
-  ellipse(0, 0, 1, 1, soft); ctx.restore();
-  if (lift < .7) {
-    // A short reflection under the feet keeps the floor matte and the actor grounded.
-    ctx.save(); ctx.globalAlpha = (1 - lift) * .055;
-    const reflected = ctx.createLinearGradient(0, 5, 0, 21); reflected.addColorStop(0, look.shirt); reflected.addColorStop(1, `${look.shirt}00`);
-    path([{ x: -11 * width, y: 5 }, { x: 11 * width, y: 5 }, { x: 14 * width, y: 21 }, { x: -14 * width, y: 21 }], reflected);
+  const lift=clamp(height/80,0,1), spread=1+lift*.38;
+  // Soft body shadow stays on the court and disperses naturally during a jump.
+  venueSoftShadow(3+height*VENUE_LIGHT.castX,3+height*VENUE_LIGHT.castY,(25+(1-width)*6)*spread,7*spread,.25-lift*.14);
+  const contact=Math.max(0,1-height/12);
+  if(contact>0) {
+    // Two tight contact pools complement the broad body shadow on matte rubber.
+    for(const side of [-1,1]) venueSoftShadow(side*6*width,1.5,6.5,2.8,.23*contact);
+    ctx.save();ctx.globalAlpha=contact*.025;
+    const reflected=ctx.createLinearGradient(0,5,0,16);
+    reflected.addColorStop(0,look.shirt);reflected.addColorStop(1,look.shirt+'00');
+    path([{x:-9*width,y:5},{x:9*width,y:5},{x:12*width,y:16},{x:-12*width,y:16}],reflected);
     ctx.restore();
   }
 }
-function drawPerson(x, y, isOpponent = false, previewOnly = false) {
+function drawPerson(x, y, isOpponent = false, previewOnly = false, visualActor = null) {
   const role=isOpponent ? 'opponent' : 'player', jersey=athleteJersey(role), racket=athleteRacket(role);
   const body = ATHLETE_BODY, look = {...ATHLETE_LOOKS[role],shirt:jersey.main,shirtLight:jersey.light,shirtShade:jersey.shade};
   const p = project(x, y), s = p.scale * 1.16 * figureScale, sy = s * figureYScale;
   if (globalThis.ShuttleAthletes?.ready) {
-    const actor = isOpponent ? opponent : player, pose = isOpponent ? opponentMotion : motion;
+    const actor = visualActor ?? (isOpponent ? opponent : player), pose = isOpponent ? opponentMotion : motion;
     const height = previewOnly ? 0 : actor.height;
     ctx.save(); ctx.translate(p.x, p.y); ctx.scale(s, sy);
     drawAthleteGroundLight(height, 1, look); ctx.restore();
@@ -1710,10 +1795,10 @@ function drawPerson(x, y, isOpponent = false, previewOnly = false) {
     });
     return;
   }
-  const height = isOpponent ? opponent.height : player.height, airborne = height > 8, activeSwing = isOpponent ? opponentSwing : swing;
+  const height = (visualActor ?? (isOpponent ? opponent : player)).height, airborne = height > 8, activeSwing = isOpponent ? opponentSwing : swing;
   const actorMotion = isOpponent ? opponentMotion : motion;
   const run = actorMotion.run, lean = actorMotion.lean;
-  const actor = isOpponent ? opponent : player;
+  const actor = visualActor ?? (isOpponent ? opponent : player);
   const backhand = !isOpponent && (activeSwing ? activeSwing.backhand : delivery?.phase === 'incoming' && isBackhand(player, incomingPosition(delivery)));
   const turn = actorMotion.turn, lunge = actorMotion.lunge, high = actorMotion.high;
   const split = actorMotion.split, brake = actorMotion.brake, stroke = actorMotion.stroke;
@@ -1987,29 +2072,29 @@ function drawAim() {
   }
   queueCourtLabel(label, p.x, labelY); ctx.restore();
 }
-function ballPosition() {
-  if (!delivery) return null;
-  if (delivery.phase === 'serve') { const actor = match.server === 'player' ? player : opponent, ground = project(actor.x + (match.server === 'player' ? .02 : 0), actor.y); return { ...ground, z: 50, rotate: .7 }; }
-  if (delivery.phase === 'point') { const ground = project(delivery.pointPosition.x, delivery.pointPosition.y); return { ...ground, z: delivery.pointPosition.z * Math.max(0, 1 - delivery.age / .15), rotate: 1.1 }; }
-  if (delivery.phase === 'miss') { const ground = project(delivery.target.x, delivery.target.y); return { ...ground, z: Math.max(0, 8 * (1 - delivery.age / .1)), rotate: 1.1 }; }
-  const back = delivery.phase === 'return', point = back ? returnPosition(delivery) : incomingPosition(delivery);
+function ballPosition(ball = delivery) {
+  if (!ball) return null;
+  if (ball.phase === 'serve') { const actor = match.server === 'player' ? player : opponent, ground = project(actor.x + (match.server === 'player' ? .02 : 0), actor.y); return { ...ground, z: 50, rotate: .7 }; }
+  if (ball.phase === 'point') { const ground = project(ball.pointPosition.x, ball.pointPosition.y); return { ...ground, z: ball.pointPosition.z * Math.max(0, 1 - ball.age / .15), rotate: 1.1 }; }
+  if (ball.phase === 'miss') { const ground = project(ball.target.x, ball.target.y); return { ...ground, z: Math.max(0, 8 * (1 - ball.age / .1)), rotate: 1.1 }; }
+  const back = ball.phase === 'return', point = back ? returnPosition(ball) : incomingPosition(ball);
   const ground = project(point.x, point.y);
-  return { ...ground, z: point.z, rotate: back ? delivery.shotType === 'drive' ? -1.5 : ['smash', 'tap'].includes(delivery.shotType) ? -1.7 : -.9 : ['attack', 'smash', 'jumpSmash', 'drive'].includes(delivery.incomingType) ? -1.4 : .7 };
+  return { ...ground, z: point.z, rotate: back ? ball.shotType === 'drive' ? -1.5 : ['smash', 'tap'].includes(ball.shotType) ? -1.7 : -.9 : ['attack', 'smash', 'jumpSmash', 'drive'].includes(ball.incomingType) ? -1.4 : .7 };
 }
-function drawBall() {
-  const p = ballPosition(); if (!p) return;
-  const feel = killEffect(delivery?.shotType, delivery?.power);
-  if (delivery?.phase === 'incoming' && ['attack', 'smash', 'jumpSmash', 'drive'].includes(delivery.incomingType) && delivery.age > 0) {
-    const lead = delivery.incomingType === 'jumpSmash' ? .13 : delivery.incomingType === 'smash' ? .10 : .075;
-    const previous = incomingPosition({ ...delivery, age: Math.max(0, delivery.age - lead) }), ground = project(previous.x, previous.y);
-    line({ x: ground.x, y: ground.y - previous.z * figureYScale }, { x: p.x, y: p.y - p.z * figureYScale }, `${incomingColors[delivery.incomingType]}bb`, delivery.incomingType === 'jumpSmash' ? 5 : delivery.incomingType === 'smash' ? 4 : 3);
+function drawBall(ball = delivery) {
+  const p = ballPosition(ball); if (!p) return;
+  const feel = killEffect(ball?.shotType, ball?.power);
+  if (ball?.phase === 'incoming' && ['attack', 'smash', 'jumpSmash', 'drive'].includes(ball.incomingType) && ball.age > 0) {
+    const lead = ball.incomingType === 'jumpSmash' ? .13 : ball.incomingType === 'smash' ? .10 : .075;
+    const previous = incomingPosition({ ...ball, age: Math.max(0, ball.age - lead) }), ground = project(previous.x, previous.y);
+    line({ x: ground.x, y: ground.y - previous.z * figureYScale }, { x: p.x, y: p.y - p.z * figureYScale }, `${incomingColors[ball.incomingType]}bb`, ball.incomingType === 'jumpSmash' ? 5 : ball.incomingType === 'smash' ? 4 : 3);
   }
-  if (delivery?.phase === 'return' && delivery.shotType === 'drive' && delivery.age > 0) {
-    const previous = returnPosition(delivery, Math.max(0, delivery.age - .075)), ground = project(previous.x, previous.y);
-    line({ x: ground.x, y: ground.y - previous.z * figureYScale }, { x: p.x, y: p.y - p.z * figureYScale }, '#c5baffbb', 2 + delivery.power * .4);
+  if (ball?.phase === 'return' && ball.shotType === 'drive' && ball.age > 0) {
+    const previous = returnPosition(ball, Math.max(0, ball.age - .075)), ground = project(previous.x, previous.y);
+    line({ x: ground.x, y: ground.y - previous.z * figureYScale }, { x: p.x, y: p.y - p.z * figureYScale }, '#c5baffbb', 2 + ball.power * .4);
   }
   if (feel && trail.length > 1) {
-    ctx.save(); ctx.lineCap = 'round'; ctx.shadowColor = '#ffd58b'; ctx.shadowBlur = delivery.power === 3 ? 8 : delivery.power === 2 ? 4 : 0;
+    ctx.save(); ctx.lineCap = 'round'; ctx.shadowColor = '#ffd58b'; ctx.shadowBlur = ball.power === 3 ? 8 : ball.power === 2 ? 4 : 0;
     for (let i = 1; i < trail.length; i++) { const fade = i / (trail.length - 1); line(trail[i - 1], trail[i], `rgba(255,213,139,${fade * feel.opacity})`, .6 + fade * feel.width); }
     ctx.restore();
   }
@@ -2040,9 +2125,11 @@ function draw(previewOnly = false) {
   courtLabels = [];
   ctx.clearRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT); drawCourt();
   if (previewOnly) { drawPerson(.5, -.70, true, true); drawNet(); drawPerson(.5, .6, false, true); return; }
-  drawServiceCourts(); drawChallengeZone(); drawAim(); drawTutorialTarget(); drawPerson(mode === 'match' ? opponent.x : delivery?.from?.x ?? .5, mode === 'match' ? opponent.y : -.70, true); drawNet(); drawTarget();
+  const visual = lanActive && !lanFailed ? lanClient?.presentation() : null;
+  const far = visual?.opponent ?? opponent;
+  drawServiceCourts(); drawChallengeZone(); drawAim(); drawTutorialTarget(); drawPerson(mode === 'match' ? far.x : delivery?.from?.x ?? .5, mode === 'match' ? far.y : -.70, true, false, far); drawNet(); drawTarget();
   if (landing) { const p = project(landing.x, landing.y), t = landing.age / .24; ctx.globalAlpha = (1 - t) * .5; ellipse(p.x, p.y, (18 + 24 * t) * p.scale, (6 + 8 * t) * p.scale, null, '#dbefaf', 2); ctx.globalAlpha = 1; }
-  drawPerson(player.x, player.y); drawBall();
+  drawPerson(player.x, player.y); drawBall(visual?.delivery ?? delivery);
   if (impact) { const t = impact.age / .20, feel = killEffect(impact.shotType, impact.power), radius = feel?.flash ?? 22; ctx.globalAlpha = 1 - t; ellipse(impact.x, impact.y, 5 + t * radius, 5 + t * radius, null, feel || impact.smash ? '#ffd58b' : '#ecffcd', feel ? 1.5 + impact.power * .55 : 2); if (feel && impact.power === 3) { ctx.globalAlpha = (1 - t) * .38; ellipse(impact.x, impact.y, 2 + t * radius * .58, 2 + t * radius * .58, null, '#fff3be', 2); } ctx.globalAlpha = 1; }
   for (const p of particles) { ctx.globalAlpha = p.life / .6; ellipse(p.x, p.y, 2.5, 2.5, p.color); } ctx.globalAlpha = 1;
   for (const label of courtLabels) {
